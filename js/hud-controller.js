@@ -460,6 +460,31 @@ class HUDController {
       });
     }
 
+    const dimToggleBtn = document.getElementById('btn-toggle-2d-3d');
+    const dimLabel = document.getElementById('label-dimension-mode');
+    let currentDimMode = '3d';
+
+    if (dimToggleBtn && dimLabel) {
+      dimToggleBtn.addEventListener('click', () => {
+        if (window.twinEngine) {
+          if (currentDimMode === '3d') {
+            window.twinEngine.setPerspectiveMode('2d');
+            dimLabel.textContent = 'TRANSFORM: 3D TERRAIN';
+            dimToggleBtn.classList.add('active');
+            currentDimMode = '2d';
+          } else {
+            window.twinEngine.setPerspectiveMode('3d');
+            dimLabel.textContent = 'TRANSFORM: 2D SATELLITE';
+            dimToggleBtn.classList.remove('active');
+            currentDimMode = '3d';
+          }
+          if (window.simController) {
+            window.simController.playTacticalBeep(currentDimMode === '2d' ? 640 : 880, 'sine', 0.1);
+          }
+        }
+      });
+    }
+
     if (evacBtn) {
       evacBtn.addEventListener('click', () => {
         if (window.twinEngine) {

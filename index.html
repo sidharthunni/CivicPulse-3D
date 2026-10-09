@@ -95,6 +95,10 @@
       </select>
     </div>
     <div class="nav-divider"></div>
+    <button class="btn-location" id="btn-toggle-2d-3d">
+      <span id="label-dimension-mode">TRANSFORM: 2D SATELLITE</span>
+    </button>
+    <div class="nav-divider"></div>
     <button class="btn-location evac-route" id="btn-toggle-evacuation">
       <span>AUTONOMOUS EVACUATION ROUTE</span>
     </button>
@@ -102,10 +106,18 @@
 
   <!-- Safe Evacuation Route Advice Card Overlay -->
   <div class="evacuation-card-overlay" id="evacuation-overlay-card">
-    <span class="evac-status-badge">SAFE EVACUATION PATH</span>
+    <span class="evac-status-badge">AUTONOMOUS EVACUATION ROUTE</span>
+    <div class="evac-metric-item">
+      <span class="lbl">COPERNICUS TELEMETRY</span>
+      <span class="val" style="color: var(--accent-cyan);">Sentinel-1 SAR & GLO-30 DEM (Hourly Sync)</span>
+    </div>
+    <div class="evac-metric-item">
+      <span class="lbl">TERRAIN GRADIENT ANALYSIS</span>
+      <span class="val">2.1 deg (Lowland Hazard) -> 14.8 deg (Safe Ridge)</span>
+    </div>
     <div class="evac-metric-item">
       <span class="lbl">DESTINATION HAVEN</span>
-      <span class="val">NIT Calicut Ridge Shelter (+48.5m MSL)</span>
+      <span class="val" style="color: var(--status-emerald);">NIT Calicut Ridge Shelter (+48.5m MSL)</span>
     </div>
     <div class="evac-metric-item">
       <span class="lbl">DRY TRANSIT CORRIDOR</span>
@@ -160,6 +172,17 @@
           <div class="impact-metric">
             <span class="metric-label">Units in Inundation Path</span>
             <span class="metric-value" id="impact-affected-pop">0 units</span>
+          </div>
+        </div>
+
+        <!-- Copernicus Satellite Telemetry -->
+        <div class="copernicus-telemetry-box" style="margin-top: 10px; padding: 8px 10px; background: rgba(56, 189, 248, 0.06); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 6px; font-family: var(--font-mono); font-size: 10px;">
+          <div style="display: flex; justify-content: space-between; color: var(--accent-cyan); font-weight: 700; margin-bottom: 4px;">
+            <span>COPERNICUS SATELLITE FEED</span>
+            <span style="color: var(--status-emerald);">HOURLY REFRESH ACTIVE</span>
+          </div>
+          <div style="color: var(--text-muted); font-size: 9.5px; line-height: 1.4;">
+            DEM: Copernicus 30m GLO-30 // Radar: Sentinel-1 C-SAR Inundation Extent // Region: Chathamangalam - NIT Calicut
           </div>
         </div>
       </div>

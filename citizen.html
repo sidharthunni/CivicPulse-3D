@@ -48,6 +48,21 @@
       </p>
     </section>
 
+    <!-- Civilian Emergency Relocation Advice Banner -->
+    <div style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+      <div>
+        <div style="font-weight: 700; color: #6ee7b7; font-size: 13px; margin-bottom: 2px;">
+          DISASTER GOVERNANCE: SAFE REFUGE HAVEN ACTIVE
+        </div>
+        <div style="font-size: 12px; color: var(--text-sub);">
+          Copernicus DEM calculated safest high terrain: <strong>NIT Calicut Ridge (+48.5m MSL)</strong>. 2 submerged roads barricaded.
+        </div>
+      </div>
+      <a href="index.html" class="btn-nav-twin" style="background: #10b981; color: #022c22; font-weight: 700; padding: 6px 14px; border-radius: 6px; text-decoration: none; font-size: 11px;">
+        VIEW 3D EVACUATION PATH
+      </a>
+    </div>
+
     <!-- Reporting Form -->
     <section class="reporting-card">
       <form id="citizen-report-form">
@@ -97,17 +112,17 @@
           </div>
 
           <div class="location-row">
-            <input type="text" id="input-location" class="form-input" placeholder="e.g. Mavoor Road Commercial Sector" value="Mavoor Road Sector 4, Kozhikode (Ward 22)" required>
+            <input type="text" id="input-location" class="form-input" placeholder="e.g. NIT Calicut Campus Corridor" value="NIT Calicut Campus & Kattangal Corridor (11.3215 N, 75.9341 E)" required>
             <button type="button" class="btn-gps" id="btn-get-gps">LOCK SATELLITE GPS</button>
           </div>
 
           <div class="quick-landmarks-row" id="quick-landmarks" style="display: none;">
             <span class="quick-landmark-label" id="lbl-landmarks">QUICK DESIRED CORRIDOR:</span>
-            <button type="button" class="btn-landmark active" data-landmark="mavoor" data-lat="11.2588" data-lng="75.7804" data-name="Mavoor Road Sector 4, Kozhikode (Ward 22)">Mavoor Road</button>
+            <button type="button" class="btn-landmark active" data-landmark="kunnamangalam" data-lat="11.3215" data-lng="75.9341" data-name="NIT Calicut Campus & Kattangal Corridor">NIT Calicut</button>
+            <button type="button" class="btn-landmark" data-landmark="mavoor" data-lat="11.2588" data-lng="75.7804" data-name="Mavoor Road Sector 4, Kozhikode (Ward 22)">Mavoor Road</button>
             <button type="button" class="btn-landmark" data-landmark="beach" data-lat="11.2467" data-lng="75.7725" data-name="South Beach Road Near Old Pier (Ward 14)">Beach Road</button>
             <button type="button" class="btn-landmark" data-landmark="kallai" data-lat="11.2319" data-lng="75.7952" data-name="Kallai River Bank Industrial Sector">Kallai Estuary</button>
             <button type="button" class="btn-landmark" data-landmark="palayam" data-lat="11.2512" data-lng="75.7844" data-name="Palayam Junction Bus Terminal">Palayam Jct</button>
-            <button type="button" class="btn-landmark" data-landmark="kunnamangalam" data-lat="11.3215" data-lng="75.9341" data-name="Kunnamangalam Ridge - NIT Calicut Spur">NIT / Kunnamangalam</button>
           </div>
         </div>
 

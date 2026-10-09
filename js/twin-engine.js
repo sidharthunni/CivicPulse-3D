@@ -1044,6 +1044,18 @@ class TwinEngine {
     }
   }
 
+  setPerspectiveMode(mode) {
+    if (mode === "2d") {
+      // Nadir Top-down 2D Copernicus Earth Observation view
+      this.smoothCameraTransition(new THREE.Vector3(105, 340, -75), new THREE.Vector3(105, 0, -75), 1100);
+      return "2d";
+    } else {
+      // 3D Oblique Isometric Elevation Mesh
+      this.smoothCameraTransition(new THREE.Vector3(135, 42, -35), new THREE.Vector3(105, 14, -80), 1100);
+      return "3d";
+    }
+  }
+
   smoothCameraTransition(targetCamPos, targetControlsTarget, duration = 1000) {
     const startCamPos = this.camera.position.clone();
     const startTarget = this.controls.target.clone();
