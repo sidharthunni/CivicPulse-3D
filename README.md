@@ -71,6 +71,6 @@ Indian cities face an urgent municipal crisis: urban flash floods, collapsing ro
 
 ## 6. Author & Contestant
 
-- **Developer**: Sidharth Unnithan (@sidharthunni)
+- **Developer**: Sidharth Unni(@sidharthunni)
 - **Institution**: Amrita Vishwa Vidyapeetham
 - **Event**: TatHack '26, NIT Calicut
