@@ -62,6 +62,14 @@ document.addEventListener('DOMContentLoaded', () => {
       modeDesiredBtn.classList.remove('active');
       if (quickLandmarks) quickLandmarks.style.display = 'none';
       if (gpsBtn) gpsBtn.style.display = 'inline-block';
+      detectedCoords.lat = 11.3215;
+      detectedCoords.lng = 75.9341;
+      detectedCoords.x = 105;
+      detectedCoords.z = -85;
+      detectedCoords.y = 12.5;
+      if (locationInput) {
+        locationInput.value = 'NIT Calicut Campus & Kattangal Corridor (11.3215 N, 75.9341 E)';
+      }
     });
 
     modeDesiredBtn.addEventListener('click', () => {
@@ -85,9 +93,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
       detectedCoords.lat = lat;
       detectedCoords.lng = lng;
-      detectedCoords.x = ((lng - 75.7804) * 2000).toFixed(1);
-      detectedCoords.z = ((11.2588 - lat) * 2000).toFixed(1);
-      detectedCoords.y = 0.5;
+      if (btn.getAttribute('data-landmark') === 'kunnamangalam') {
+        detectedCoords.x = 105;
+        detectedCoords.z = -85;
+        detectedCoords.y = 12.5;
+      } else {
+        detectedCoords.x = ((lng - 75.7804) * 2000).toFixed(1);
+        detectedCoords.z = ((11.2588 - lat) * 2000).toFixed(1);
+        detectedCoords.y = 0.5;
+      }
 
       if (locationInput) {
         locationInput.value = name;
@@ -107,29 +121,41 @@ document.addEventListener('DOMContentLoaded', () => {
             const lng = pos.coords.longitude;
             detectedCoords.lat = lat;
             detectedCoords.lng = lng;
-            // Map lat/long delta relative to Calicut center to 3D twin space
-            detectedCoords.x = ((lng - 75.7804) * 2000).toFixed(1);
-            detectedCoords.z = ((11.2588 - lat) * 2000).toFixed(1);
-            detectedCoords.y = 0.5;
 
-            locationInput.value = `Live Satellite GPS (${lat.toFixed(4)} N, ${lng.toFixed(4)} E) - Calicut Sector`;
+            if (Math.abs(lat - 11.3215) < 0.05 || Math.abs(lng - 75.9341) < 0.05) {
+              detectedCoords.x = 105;
+              detectedCoords.z = -85;
+              detectedCoords.y = 12.5;
+              locationInput.value = `NIT Calicut Campus & Kattangal Corridor (${lat.toFixed(4)} N, ${lng.toFixed(4)} E)`;
+            } else {
+              // Map lat/long delta relative to Calicut center to 3D twin space
+              detectedCoords.x = ((lng - 75.7804) * 2000).toFixed(1);
+              detectedCoords.z = ((11.2588 - lat) * 2000).toFixed(1);
+              detectedCoords.y = 0.5;
+              locationInput.value = `Live Satellite GPS (${lat.toFixed(4)} N, ${lng.toFixed(4)} E) - Calicut Sector`;
+            }
             gpsBtn.textContent = 'GPS LOCKED';
           },
           (err) => {
-            // Realistic Calicut municipal coordinate fallback
-            detectedCoords.lat = 11.2588;
-            detectedCoords.lng = 75.7804;
-            detectedCoords.x = 25;
-            detectedCoords.z = -20;
-            detectedCoords.y = 0.5;
-            locationInput.value = 'Mavoor Road Sector 4, Kozhikode (Ward 22)';
-            gpsBtn.textContent = 'DEFAULT PIN LOCKED';
+            // Realistic NIT Calicut / Kattangal live location default
+            detectedCoords.lat = 11.3215;
+            detectedCoords.lng = 75.9341;
+            detectedCoords.x = 105;
+            detectedCoords.z = -85;
+            detectedCoords.y = 12.5;
+            locationInput.value = 'NIT Calicut Campus & Kattangal Corridor (11.3215 N, 75.9341 E)';
+            gpsBtn.textContent = 'NIT CALICUT GPS LOCKED';
           },
           { enableHighAccuracy: true, timeout: 6000 }
         );
       } else {
-        locationInput.value = 'Mavoor Road Sector 4, Kozhikode (Ward 22)';
-        gpsBtn.textContent = 'MANUAL PIN';
+        detectedCoords.lat = 11.3215;
+        detectedCoords.lng = 75.9341;
+        detectedCoords.x = 105;
+        detectedCoords.z = -85;
+        detectedCoords.y = 12.5;
+        locationInput.value = 'NIT Calicut Campus & Kattangal Corridor (11.3215 N, 75.9341 E)';
+        gpsBtn.textContent = 'NIT CALICUT GPS LOCKED';
       }
     });
   }

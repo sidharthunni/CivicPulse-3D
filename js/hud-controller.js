@@ -18,6 +18,7 @@ class HUDController {
     this.initCarousel();
     this.initModals();
     this.initQuickActions();
+    this.initSpatialNavigation();
 
     // Listen to custom store events
     window.addEventListener('civicpulse:incidentAdded', (e) => {
@@ -410,6 +411,55 @@ class HUDController {
         if (window.simController) {
           window.simController.soundEnabled = !window.simController.soundEnabled;
           soundBtn.textContent = window.simController.soundEnabled ? 'AUDIO: ON' : 'AUDIO: MUTED';
+        }
+      });
+    }
+  }
+
+  // 9. Floating Spatial Location & Evacuation Bar
+  initSpatialNavigation() {
+    const liveGpsBtn = document.getElementById('btn-live-gps');
+    const sectorSelect = document.getElementById('select-desired-sector');
+    const evacBtn = document.getElementById('btn-toggle-evacuation');
+    const evacCard = document.getElementById('evacuation-overlay-card');
+
+    if (liveGpsBtn) {
+      liveGpsBtn.addEventListener('click', () => {
+        if (window.twinEngine) {
+          window.twinEngine.setCameraPreset('nit_calicut');
+        }
+        if (sectorSelect) {
+          sectorSelect.value = 'nit_calicut';
+        }
+        if (window.simController) {
+          window.simController.playTacticalBeep(880, 'sine', 0.1);
+        }
+      });
+    }
+
+    if (sectorSelect) {
+      sectorSelect.addEventListener('change', () => {
+        const sector = sectorSelect.value;
+        if (window.twinEngine) {
+          window.twinEngine.setCameraPreset(sector);
+        }
+        if (window.simController) {
+          window.simController.playTacticalBeep(720, 'sine', 0.08);
+        }
+      });
+    }
+
+    if (evacBtn) {
+      evacBtn.addEventListener('click', () => {
+        if (window.twinEngine) {
+          const active = window.twinEngine.toggleEvacuationRoute();
+          evacBtn.classList.toggle('active', active);
+          if (evacCard) {
+            evacCard.classList.toggle('active', active);
+          }
+          if (window.simController) {
+            window.simController.playTacticalBeep(active ? 950 : 520, 'sine', 0.12);
+          }
         }
       });
     }

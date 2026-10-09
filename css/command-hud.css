@@ -1172,3 +1172,166 @@ body.civilian-mode .civilian-banner {
   display: block;
 }
 
+/* Floating Spatial Location & Evacuation Bar */
+.spatial-nav-bar {
+  position: absolute;
+  top: 66px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  background: rgba(11, 19, 41, 0.9);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-color);
+  border-radius: 28px;
+  padding: 5px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), 0 0 15px rgba(56, 189, 248, 0.2);
+}
+
+.btn-location {
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 20px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-location.live-gps {
+  background: rgba(16, 185, 129, 0.18);
+  border: 1px solid rgba(16, 185, 129, 0.5);
+  color: #6ee7b7;
+}
+
+.btn-location.live-gps:hover {
+  background: rgba(16, 185, 129, 0.32);
+  box-shadow: 0 0 14px rgba(16, 185, 129, 0.5);
+}
+
+.gps-pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 8px #10b981;
+  animation: pulse-dot 1.5s infinite;
+}
+
+.nav-divider {
+  width: 1px;
+  height: 18px;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.nav-sector-select {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.nav-select-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-muted);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.nav-dropdown {
+  background: #0f172a;
+  border: 1px solid var(--border-color);
+  color: var(--accent-cyan);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  outline: none;
+  cursor: pointer;
+}
+
+.nav-dropdown:focus {
+  border-color: #38bdf8;
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.3);
+}
+
+.btn-location.evac-route {
+  background: rgba(56, 189, 248, 0.15);
+  border: 1px solid var(--border-color);
+  color: var(--accent-cyan);
+}
+
+.btn-location.evac-route:hover,
+.btn-location.evac-route.active {
+  background: linear-gradient(135deg, #0284c7, #0369a1);
+  color: #fff;
+  border-color: #38bdf8;
+  box-shadow: 0 0 14px rgba(56, 189, 248, 0.5);
+}
+
+/* Evacuation Card Overlay */
+.evacuation-card-overlay {
+  display: none;
+  position: absolute;
+  top: 118px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  background: rgba(6, 9, 19, 0.94);
+  border: 1px solid #10b981;
+  border-radius: var(--radius-md);
+  padding: 10px 18px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 16px rgba(16, 185, 129, 0.35);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: #e2e8f0;
+}
+
+.evacuation-card-overlay.active {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.evac-status-badge {
+  background: rgba(16, 185, 129, 0.2);
+  color: #6ee7b7;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-weight: 700;
+  border: 1px solid #10b981;
+  text-transform: uppercase;
+  font-size: 9px;
+  white-space: nowrap;
+}
+
+.evac-metric-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.evac-metric-item .lbl {
+  font-size: 8px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.evac-metric-item .val {
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+}
+
+
