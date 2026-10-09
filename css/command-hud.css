@@ -1334,4 +1334,264 @@ body.civilian-mode .civilian-banner {
   color: #fff;
 }
 
+/* Landmark / Monument Spatial Inspector Card */
+.landmark-inspector-overlay {
+  display: none;
+  position: absolute;
+  bottom: 58px;
+  right: 440px;
+  z-index: 25;
+  width: 380px;
+  background: rgba(11, 19, 41, 0.94);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--accent-cyan);
+  border-radius: var(--radius-md);
+  padding: 14px 18px;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.8), 0 0 20px rgba(56, 189, 248, 0.3);
+  font-family: var(--font-mono);
+  color: #e2e8f0;
+}
+
+.landmark-inspector-overlay.active {
+  display: block;
+}
+
+.landmark-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.landmark-badge {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: rgba(56, 189, 248, 0.15);
+  color: var(--accent-cyan);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  text-transform: uppercase;
+}
+
+.landmark-close-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.landmark-close-btn:hover {
+  color: #fff;
+  background: rgba(239, 68, 68, 0.2);
+}
+
+.landmark-title {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 4px;
+}
+
+.landmark-desc {
+  font-size: 11px;
+  color: var(--text-sub);
+  line-height: 1.4;
+  margin-bottom: 12px;
+}
+
+.landmark-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.landmark-metric {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  padding: 6px 10px;
+}
+
+.landmark-metric.highlight {
+  grid-column: span 2;
+  background: rgba(16, 185, 129, 0.08);
+  border-color: rgba(16, 185, 129, 0.35);
+}
+
+.landmark-metric .lm-label {
+  display: block;
+  font-size: 8.5px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+}
+
+.landmark-metric .lm-val {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.landmark-metric .lm-val.emerald {
+  color: #34d399;
+}
+
+.landmark-metric .lm-val.cyan {
+  color: #38bdf8;
+}
+
+.landmark-status-pill {
+  font-size: 9.5px;
+  font-weight: 700;
+  padding: 5px 8px;
+  border-radius: 4px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.landmark-status-pill.safe {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: #6ee7b7;
+}
+
+.landmark-status-pill.warning {
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  color: #fbbf24;
+}
+
+/* Floating 2D Copernicus Satellite Side-Widget */
+.copernicus-side-widget {
+  position: absolute;
+  top: 120px;
+  left: 360px;
+  z-index: 22;
+  width: 290px;
+  background: rgba(11, 19, 41, 0.94);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  border-radius: var(--radius-md);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), 0 0 15px rgba(56, 189, 248, 0.2);
+  font-family: var(--font-mono);
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.copernicus-side-widget.minimized .widget-body {
+  display: none;
+}
+
+.widget-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: rgba(15, 23, 42, 0.8);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.widget-title-group {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.radar-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--status-emerald);
+  box-shadow: 0 0 8px var(--status-emerald);
+  animation: pulse-dot 1.4s infinite;
+}
+
+.widget-title {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--accent-cyan);
+  letter-spacing: 0.5px;
+}
+
+.btn-widget-toggle {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 12px;
+  padding: 0 4px;
+}
+
+.widget-body {
+  padding: 10px 12px;
+}
+
+.canvas-radar-wrap {
+  position: relative;
+  width: 100%;
+  height: 175px;
+  background: #060913;
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.canvas-radar-wrap canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.side-map-telemetry {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 10px;
+  font-size: 9.5px;
+}
+
+.side-map-telemetry .tele-row {
+  display: flex;
+  justify-content: space-between;
+  color: var(--text-muted);
+}
+
+.side-map-telemetry .tele-row .cyan { color: var(--accent-cyan); font-weight: 700; }
+.side-map-telemetry .tele-row .emerald { color: #34d399; font-weight: 700; }
+.side-map-telemetry .tele-row .amber { color: #fbbf24; font-weight: 700; }
+
+.btn-side-transform {
+  width: 100%;
+  padding: 8px 10px;
+  background: rgba(56, 189, 248, 0.18);
+  border: 1px solid var(--accent-cyan);
+  border-radius: 6px;
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.btn-side-transform:hover {
+  background: rgba(56, 189, 248, 0.35);
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+}
+
 

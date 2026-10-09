@@ -129,6 +129,74 @@
     </div>
   </div>
 
+  <!-- Landmark & Campus Monument Spatial Inspector Overlay -->
+  <div class="landmark-inspector-overlay" id="landmark-inspector-card">
+    <div class="landmark-card-header">
+      <span class="landmark-badge" id="lm-category">CAMPUS LANDMARK</span>
+      <button class="landmark-close-btn" id="btn-close-landmark" title="Close">X</button>
+    </div>
+    <div class="landmark-title" id="lm-title">NIT CALICUT ADMIN BLOCK</div>
+    <div class="landmark-desc" id="lm-desc">Central administrative hub, Registrar office, Senate hall, and Directorate.</div>
+    <div class="landmark-grid">
+      <div class="landmark-metric">
+        <span class="lm-label">PHYSICAL DIMENSIONS</span>
+        <span class="lm-val" id="lm-dimensions">60m x 22m x 12m</span>
+      </div>
+      <div class="landmark-metric">
+        <span class="lm-label">STOREYS / HEIGHT</span>
+        <span class="lm-val" id="lm-storeys">3 Floors (12.0m)</span>
+      </div>
+      <div class="landmark-metric highlight">
+        <span class="lm-label">DISTANCE FROM YOUR LIVE GPS</span>
+        <span class="lm-val emerald" id="lm-distance">26.0m (Bearing 000 deg N)</span>
+      </div>
+      <div class="landmark-metric">
+        <span class="lm-label">GROUND ELEVATION</span>
+        <span class="lm-val cyan" id="lm-elevation">+16.2m MSL</span>
+      </div>
+      <div class="landmark-metric">
+        <span class="lm-label">TERRAIN SLOPE</span>
+        <span class="lm-val" id="lm-slope">1.8 deg (Gentle)</span>
+      </div>
+    </div>
+    <div class="landmark-status-pill safe" id="lm-safety-pill">
+      FLOOD RESILIENT // SAFE HARBOR ELEVATION
+    </div>
+  </div>
+
+  <!-- Floating 2D Copernicus Satellite Radar Side-Widget -->
+  <div class="copernicus-side-widget" id="copernicus-side-widget">
+    <div class="widget-header">
+      <div class="widget-title-group">
+        <span class="radar-dot"></span>
+        <span class="widget-title">COPERNICUS SENTINEL-1 & DEM (2D)</span>
+      </div>
+      <button class="btn-widget-toggle" id="btn-toggle-copernicus-widget" title="Minimize / Expand">_</button>
+    </div>
+    <div class="widget-body">
+      <div class="canvas-radar-wrap">
+        <canvas id="copernicus-2d-canvas" width="264" height="175"></canvas>
+      </div>
+      <div class="side-map-telemetry">
+        <div class="tele-row">
+          <span>SENSOR / ORBIT:</span>
+          <span class="cyan">Sentinel-1 C-SAR // GLO-30 DEM</span>
+        </div>
+        <div class="tele-row">
+          <span>LIVE GPS ORIGIN:</span>
+          <span class="emerald">Gandhi Circle (NIT Calicut)</span>
+        </div>
+        <div class="tele-row">
+          <span>INUNDATION LEVEL:</span>
+          <span class="amber" id="copernicus-inundation-val">0.0m (Normal)</span>
+        </div>
+      </div>
+      <button class="btn-side-transform" id="btn-side-transform-3d">
+        TRANSFORM 2D TO 3D TWIN
+      </button>
+    </div>
+  </div>
+
   <!-- Left Tactical HUD - Simulation & Drone Patrol -->
   <aside class="hud-panel" id="hud-left">
     <div class="panel-header">
@@ -425,10 +493,10 @@
   <!-- Scripts -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-  <script src="js/incidents-data.js?v=2.5"></script>
-  <script src="js/twin-engine.js?v=2.5"></script>
-  <script src="js/simulation.js?v=2.5"></script>
-  <script src="js/hud-controller.js?v=2.5"></script>
+  <script src="js/incidents-data.js?v=2.6"></script>
+  <script src="js/twin-engine.js?v=2.6"></script>
+  <script src="js/simulation.js?v=2.6"></script>
+  <script src="js/hud-controller.js?v=2.6"></script>
 
   <!-- Application Bootstrap -->
   <script>

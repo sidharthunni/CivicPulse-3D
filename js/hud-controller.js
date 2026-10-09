@@ -19,6 +19,8 @@ class HUDController {
     this.initModals();
     this.initQuickActions();
     this.initSpatialNavigation();
+    this.initLandmarkInspector();
+    this.initCopernicusSideWidget();
 
     // Listen to custom store events
     window.addEventListener('civicpulse:incidentAdded', (e) => {
@@ -499,6 +501,291 @@ class HUDController {
         }
       });
     }
+  }
+
+  // 10. Landmark & Campus Monument Inspector
+  initLandmarkInspector() {
+    const card = document.getElementById('landmark-inspector-card');
+    const closeBtn = document.getElementById('btn-close-landmark');
+
+    const titleEl = document.getElementById('lm-title');
+    const categoryEl = document.getElementById('lm-category');
+    const descEl = document.getElementById('lm-desc');
+    const dimsEl = document.getElementById('lm-dimensions');
+    const storeysEl = document.getElementById('lm-storeys');
+    const distEl = document.getElementById('lm-distance');
+    const elevEl = document.getElementById('lm-elevation');
+    const slopeEl = document.getElementById('lm-slope');
+    const safetyPill = document.getElementById('lm-safety-pill');
+
+    if (closeBtn && card) {
+      closeBtn.addEventListener('click', () => {
+        card.classList.remove('active');
+        if (window.twinEngine) {
+          window.twinEngine.clearLandmarkMeasurement();
+        }
+      });
+    }
+
+    window.addEventListener('civicpulse:selectBuilding', (e) => {
+      if (!card || !e.detail) return;
+      const d = e.detail;
+
+      if (titleEl) titleEl.textContent = d.name.toUpperCase();
+      if (categoryEl) categoryEl.textContent = d.category.toUpperCase();
+      if (descEl) descEl.textContent = d.description;
+      if (dimsEl) dimsEl.textContent = d.dimensions;
+      if (storeysEl) storeysEl.textContent = d.storeys;
+      if (distEl) distEl.textContent = `${d.horizontalDistance}m (${d.bearingDeg} deg ${d.bearingDirection})`;
+      if (elevEl) elevEl.textContent = d.elevationMSL;
+      if (slopeEl) slopeEl.textContent = d.slope;
+
+      if (safetyPill) {
+        safetyPill.textContent = d.floodSafety;
+        if (d.floodSafety.includes('MAXIMUM') || d.floodSafety.includes('SAFE')) {
+          safetyPill.className = 'landmark-status-pill safe';
+        } else {
+          safetyPill.className = 'landmark-status-pill warning';
+        }
+      }
+
+      card.classList.add('active');
+    });
+
+    window.addEventListener('civicpulse:deselectBuilding', () => {
+      if (card) {
+        card.classList.remove('active');
+      }
+    });
+  }
+
+  // 11. Floating 2D Copernicus Satellite Radar Side-Widget
+  initCopernicusSideWidget() {
+    const widget = document.getElementById('copernicus-side-widget');
+    const toggleBtn = document.getElementById('btn-toggle-copernicus-widget');
+    const transformBtn = document.getElementById('btn-side-transform-3d');
+    const inundationVal = document.getElementById('copernicus-inundation-val');
+    const canvas = document.getElementById('copernicus-2d-canvas');
+
+    if (toggleBtn && widget) {
+      toggleBtn.addEventListener('click', () => {
+        widget.classList.toggle('minimized');
+        toggleBtn.textContent = widget.classList.contains('minimized') ? '+' : '_';
+      });
+    }
+
+    if (transformBtn) {
+      transformBtn.addEventListener('click', () => {
+        if (window.twinEngine) {
+          window.twinEngine.setPerspectiveMode('3d');
+        }
+        if (window.simController) {
+          window.simController.playTacticalBeep(880, 'sine', 0.12);
+        }
+        const dimLabel = document.getElementById('label-dimension-mode');
+        const dimToggleBtn = document.getElementById('btn-toggle-2d-3d');
+        if (dimLabel) dimLabel.textContent = 'TRANSFORM: 2D SATELLITE';
+        if (dimToggleBtn) dimToggleBtn.classList.remove('active');
+      });
+    }
+
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let radarAngle = 0;
+
+    const render2dRadar = () => {
+      const w = canvas.width;
+      const h = canvas.height;
+      radarAngle = (radarAngle + 0.035) % (Math.PI * 2);
+
+      // 1. Dark tactical base
+      ctx.fillStyle = '#060913';
+      ctx.fillRect(0, 0, w, h);
+
+      // 2. Subtle coordinate grid
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.08)';
+      ctx.lineWidth = 1;
+      for (let x = 0; x < w; x += 22) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, h);
+        ctx.stroke();
+      }
+      for (let y = 0; y < h; y += 22) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(w, y);
+        ctx.stroke();
+      }
+
+      // 3. Concentric radar range rings centered at Gandhi Circle (135, 95)
+      const centerX = 135;
+      const centerY = 95;
+      [30, 60, 95].forEach((rad, i) => {
+        ctx.strokeStyle = 'rgba(56, 189, 248, 0.18)';
+        ctx.setLineDash([3, 4]);
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, rad, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        ctx.fillStyle = 'rgba(148, 163, 184, 0.5)';
+        ctx.font = '8px monospace';
+        ctx.fillText(`${(i + 1) * 300}m`, centerX + rad + 2, centerY - 2);
+      });
+
+      // 4. Chaliyar / Iruvanjippuzha river corridor (West side)
+      ctx.beginPath();
+      ctx.moveTo(28, 0);
+      ctx.bezierCurveTo(45, 50, 35, 110, 52, h);
+      ctx.lineTo(15, h);
+      ctx.bezierCurveTo(8, 110, 18, 50, 6, 0);
+      ctx.closePath();
+      ctx.fillStyle = 'rgba(2, 132, 199, 0.35)';
+      ctx.fill();
+      ctx.strokeStyle = '#0284c7';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      // 5. Dynamic Flood Inundation Polygon synced with simulation
+      const floodLevel = (window.simController ? window.simController.currentFloodLevel : 0) || 0;
+      if (inundationVal) {
+        inundationVal.textContent = floodLevel === 0 ? '0.0m (Normal)' : `+${floodLevel.toFixed(1)}m Inundation`;
+        inundationVal.className = floodLevel === 0 ? 'emerald' : (floodLevel <= 2.0 ? 'cyan' : 'amber');
+      }
+
+      if (floodLevel > 0) {
+        const spread = Math.min(85, floodLevel * 14);
+        ctx.beginPath();
+        ctx.moveTo(28, 0);
+        ctx.bezierCurveTo(45 + spread * 0.8, 50, 35 + spread, 110, 52 + spread * 0.7, h);
+        ctx.lineTo(0, h);
+        ctx.lineTo(0, 0);
+        ctx.closePath();
+        ctx.fillStyle = `rgba(14, 165, 233, ${Math.min(0.55, 0.2 + floodLevel * 0.05)})`;
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(56, 189, 248, 0.8)';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
+
+      // 6. Roads: Mukkam Highway SH 34 & Campus Rajpath
+      // SH 34 East-West Highway
+      ctx.strokeStyle = 'rgba(148, 163, 184, 0.65)';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(0, 128);
+      ctx.lineTo(w, 128);
+      ctx.stroke();
+
+      // Highway label
+      ctx.fillStyle = 'rgba(148, 163, 184, 0.7)';
+      ctx.font = '7.5px monospace';
+      ctx.fillText('SH 34 MUKKAM HWY', 6, 124);
+
+      // Rajpath Avenue (Main Gate to Gandhi Circle to Admin)
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.75)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(centerX, 128);
+      ctx.lineTo(centerX, centerY);
+      ctx.lineTo(centerX, 60);
+      ctx.stroke();
+
+      // East-West Internal Avenues
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.4)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(90, centerY);
+      ctx.lineTo(205, centerY);
+      ctx.stroke();
+
+      // 7. Campus Boundary (dashed cyan polygon)
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.45)';
+      ctx.setLineDash([4, 3]);
+      ctx.beginPath();
+      ctx.rect(78, 25, 140, 105);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = 'rgba(56, 189, 248, 0.6)';
+      ctx.font = '8px monospace';
+      ctx.fillText('NIT CALICUT PERIMETER', 82, 36);
+
+      // 8. Key Landmark Nodes
+      const nodes = [
+        { name: 'ADMIN', x: centerX, y: 62, color: '#38bdf8' },
+        { name: 'CCC', x: 104, y: 88, color: '#38bdf8' },
+        { name: 'LIBRARY', x: 168, y: 92, color: '#38bdf8' },
+        { name: 'HOSTELS (+48m)', x: 195, y: 72, color: '#10b981' },
+        { name: 'GATE', x: centerX, y: 128, color: '#10b981' },
+        { name: 'STADIUM', x: 105, y: 45, color: '#38bdf8' }
+      ];
+
+      nodes.forEach(n => {
+        ctx.fillStyle = n.color;
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#cbd5e1';
+        ctx.font = '7px monospace';
+        ctx.fillText(n.name, n.x + 4, n.y + 2);
+      });
+
+      // 9. User Live GPS Origin (Gandhi Circle)
+      const now = performance.now() * 0.003;
+      const pulseRadius = 3 + (now % 1) * 9;
+      const pulseOpacity = 1 - (now % 1);
+
+      ctx.strokeStyle = `rgba(16, 185, 129, ${pulseOpacity})`;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, pulseRadius, 0, Math.PI * 2);
+      ctx.stroke();
+
+      ctx.fillStyle = '#10b981';
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, 3.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#34d399';
+      ctx.font = 'bold 7.5px monospace';
+      ctx.fillText('YOU (GPS)', centerX - 38, centerY - 5);
+
+      // 10. Rotating Sentinel-1 C-SAR Radar Sweep Beam
+      const sweepLen = 110;
+      const sweepX = centerX + Math.cos(radarAngle) * sweepLen;
+      const sweepY = centerY + Math.sin(radarAngle) * sweepLen;
+
+      const grad = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, sweepLen);
+      grad.addColorStop(0, 'rgba(56, 189, 248, 0.4)');
+      grad.addColorStop(1, 'rgba(56, 189, 248, 0.0)');
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(centerX, centerY);
+      ctx.arc(centerX, centerY, sweepLen, radarAngle - 0.35, radarAngle);
+      ctx.closePath();
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.85)';
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.moveTo(centerX, centerY);
+      ctx.lineTo(sweepX, sweepY);
+      ctx.stroke();
+      ctx.restore();
+
+      // 11. North Indicator
+      ctx.fillStyle = 'rgba(56, 189, 248, 0.8)';
+      ctx.font = 'bold 8.5px monospace';
+      ctx.fillText('[N ^]', w - 32, 14);
+
+      requestAnimationFrame(render2dRadar);
+    };
+
+    render2dRadar();
   }
 }
 
