@@ -46,9 +46,9 @@ class TwinEngine {
     // Linear distant fog starting at 600m ensures zero dimming when orbiting or zooming
     this.scene.fog = new THREE.Fog(0x060913, 600, 1800);
 
-    // 2. Camera
+    // 2. Camera (Initially focused directly on NIT Calicut Campus)
     this.camera = new THREE.PerspectiveCamera(50, width / height, 1, 2000);
-    this.camera.position.set(160, 140, 190);
+    this.camera.position.set(130, 44, -22);
 
     // 3. Renderer
     this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: "high-performance" });
@@ -60,14 +60,14 @@ class TwinEngine {
     this.renderer.toneMappingExposure = 1.25;
     this.container.appendChild(this.renderer.domElement);
 
-    // 4. Orbit Controls
+    // 4. Orbit Controls (Targeting NIT Calicut Admin & Gandhi Circle)
     this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
     this.controls.enableDamping = true;
     this.controls.dampingFactor = 0.05;
     this.controls.maxPolarAngle = Math.PI / 2 - 0.05; // Prevent dipping below ground
     this.controls.minDistance = 25;
     this.controls.maxDistance = 550;
-    this.controls.target.set(0, 5, 0);
+    this.controls.target.set(105, 14, -75);
 
     // 5. Lighting
     this.setupLighting();
@@ -277,11 +277,10 @@ class TwinEngine {
       new THREE.MeshStandardMaterial({ color: 0x1e3a5f, roughness: 0.5, metalness: 0.4 })
     ];
 
-    // Seeded procedural buildings in urban grids (excluding NIT Calicut campus quadrant)
+    // Seeded procedural buildings strictly in western coastal city (x <= -45), keeping Chathamangalam & NIT Calicut 100% open
     const zones = [
-      { startX: -140, endX: -40, startZ: -140, endZ: -40, heightRange: [12, 45], density: 36 }, // Commercial District
-      { startX: 20, endX: 120, startZ: -40, endZ: 60, heightRange: [8, 28], density: 42 },     // Mixed Urban Corridor
-      { startX: -130, endX: -30, startZ: 30, endZ: 130, heightRange: [6, 20], density: 30 }     // Residential / Harbor
+      { startX: -140, endX: -50, startZ: -140, endZ: -40, heightRange: [12, 38], density: 24 }, // Western Commercial District
+      { startX: -130, endX: -50, startZ: 30, endZ: 130, heightRange: [6, 18], density: 20 }      // Harbor / Coastal Sector
     ];
 
     zones.forEach(zone => {
@@ -289,9 +288,9 @@ class TwinEngine {
         const x = zone.startX + Math.random() * (zone.endX - zone.startX);
         const z = zone.startZ + Math.random() * (zone.endZ - zone.startZ);
 
-        // Keep roads and NIT Calicut campus quadrant clear
+        // Keep roads clear
         if (Math.abs(x) < 14 || Math.abs(z + 80) < 12) continue;
-        if (x >= 35 && x <= 200 && z >= -170 && z <= -30) continue;
+        if (x >= -45) continue; // 100% guarantee eastern campus sector has zero procedural skyscrapers
 
         const w = 6 + Math.random() * 8;
         const d = 6 + Math.random() * 8;

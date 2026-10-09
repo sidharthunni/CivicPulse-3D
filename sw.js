@@ -5,7 +5,7 @@
  * Strictly zero emojis
  */
 
-const CACHE_NAME = 'civicpulse-3d-cache-v1';
+const CACHE_NAME = 'civicpulse-3d-cache-v4';
 const OFFLINE_URLS = [
   './',
   './index.html',
@@ -33,13 +33,14 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Activate: Clean old caches
+// Activate: Clean old caches immediately
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((name) => {
           if (name !== CACHE_NAME) {
+            console.log('Clearing old cache:', name);
             return caches.delete(name);
           }
         })
@@ -48,41 +49,32 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch: Stale-While-Revalidate with Cache-First Fallback
+// Fetch: Network-First with Offline Cache Fallback
 self.addEventListener('fetch', (event) => {
-  // Only handle GET requests
   if (event.request.method !== 'GET') return;
 
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        // Fetch fresh copy in background if network is active
-        fetch(event.request).then((networkResponse) => {
-          if (networkResponse && networkResponse.status === 200) {
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(event.request, networkResponse.clone());
-            });
-          }
-        }).catch(() => {
-          // Network failed, continuing with cached response
-        });
-        return cachedResponse;
-      }
-
-      // If not in cache, fetch from network and store
-      return fetch(event.request).then((networkResponse) => {
-        if (!networkResponse || networkResponse.status !== 200 || networkResponse.type === 'opaque') {
-          return networkResponse;
+    fetch(event.request)
+      .then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200) {
+          const responseToCache = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseToCache);
+          });
         }
-        const responseToCache = networkResponse.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, responseToCache);
-        });
         return networkResponse;
-      }).catch(() => {
-        // Offline fallback
-        if (event.request.destination === 'document') {
-          return caches.match('./index.html') || caches.match('./citizen.html');
+      })
+      .catch(() => {
+        // Network offline fallback to cache
+        return caches.match(event.request).then((cachedResponse) => {
+          if (cachedResponse) return cachedResponse;
+          if (event.request.destination === 'document') {
+            return caches.match('./index.html') || caches.match('./citizen.html');
+          }
+        });
+      })
+  );
+});
         }
       });
     })
