@@ -10,6 +10,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
   
+  <!-- Manifest for PWA Offline Install -->
+  <link rel="manifest" href="manifest.json">
+
   <!-- Stylesheet -->
   <link rel="stylesheet" href="css/citizen.css">
 </head>
@@ -25,6 +28,15 @@
   </header>
 
   <main class="portal-container">
+    <!-- Connectivity & Offline Disaster Resilience Bar -->
+    <div class="connectivity-status-bar" id="net-status-bar">
+      <div class="net-status-indicator">
+        <span class="net-status-dot" id="net-status-dot"></span>
+        <span id="net-status-text">NETWORK: ONLINE // DIRECT MUNICIPAL DISPATCH ACTIVE</span>
+      </div>
+      <span class="net-offline-badge" id="net-offline-badge">100% OFFLINE READY VIA SATELLITE GPS</span>
+    </div>
+
     <!-- Welcome Card -->
     <section class="hero-card">
       <h1 class="hero-title">Report Municipal Hazard or Infrastructure Breach</h1>
@@ -69,12 +81,28 @@
           </div>
         </div>
 
-        <!-- Location Geocode -->
+        <!-- Location Geocode: Live GPS vs Desired Location -->
         <div class="form-group">
-          <label class="form-label" for="input-location">Geographic Location</label>
+          <div class="section-label-row">
+            <label class="form-label" for="input-location">Geographic Location</label>
+            <div class="location-mode-toggle">
+              <button type="button" class="btn-mode active" id="btn-mode-gps">LIVE HARDWARE GPS</button>
+              <button type="button" class="btn-mode" id="btn-mode-desired">DESIRED LOCATION</button>
+            </div>
+          </div>
+
           <div class="location-row">
             <input type="text" id="input-location" class="form-input" placeholder="e.g. Mavoor Road Commercial Sector" value="Mavoor Road Sector 4, Kozhikode (Ward 22)" required>
-            <button type="button" class="btn-gps" id="btn-get-gps">DETECT GPS</button>
+            <button type="button" class="btn-gps" id="btn-get-gps">LOCK SATELLITE GPS</button>
+          </div>
+
+          <div class="quick-landmarks-row" id="quick-landmarks" style="display: none;">
+            <span class="quick-landmark-label">QUICK DESIRED CORRIDOR:</span>
+            <button type="button" class="btn-landmark active" data-landmark="mavoor" data-lat="11.2588" data-lng="75.7804" data-name="Mavoor Road Sector 4, Kozhikode (Ward 22)">Mavoor Road</button>
+            <button type="button" class="btn-landmark" data-landmark="beach" data-lat="11.2467" data-lng="75.7725" data-name="South Beach Road Near Old Pier (Ward 14)">Beach Road</button>
+            <button type="button" class="btn-landmark" data-landmark="kallai" data-lat="11.2319" data-lng="75.7952" data-name="Kallai River Bank Industrial Sector">Kallai Estuary</button>
+            <button type="button" class="btn-landmark" data-landmark="palayam" data-lat="11.2512" data-lng="75.7844" data-name="Palayam Junction Bus Terminal">Palayam Jct</button>
+            <button type="button" class="btn-landmark" data-landmark="kunnamangalam" data-lat="11.3215" data-lng="75.9341" data-name="Kunnamangalam Ridge - NIT Calicut Spur">NIT / Kunnamangalam</button>
           </div>
         </div>
 
@@ -147,5 +175,14 @@
   <!-- Core State & Logic Scripts -->
   <script src="js/incidents-data.js"></script>
   <script src="js/citizen-portal.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').then(() => {
+          console.log('CivicPulse Service Worker active: 100% Offline Disaster Resilience enabled.');
+        }).catch(() => {});
+      });
+    }
+  </script>
 </body>
 </html>

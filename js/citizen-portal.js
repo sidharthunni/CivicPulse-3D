@@ -23,13 +23,82 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // 2. GPS Location Detection
+  // 2. Connectivity & Offline Disaster Resilience Detection
+  const netDot = document.getElementById('net-status-dot');
+  const netText = document.getElementById('net-status-text');
+  const netBadge = document.getElementById('net-offline-badge');
+
+  function updateNetworkStatus() {
+    const isOnline = navigator.onLine;
+    if (netDot) {
+      netDot.className = isOnline ? 'net-status-dot' : 'net-status-dot offline';
+    }
+    if (netText) {
+      netText.textContent = isOnline
+        ? 'NETWORK: ONLINE // DIRECT MUNICIPAL DISPATCH ACTIVE'
+        : 'NETWORK: OFFLINE // SATELLITE GPS & LOCAL DISASTER QUEUE ACTIVE';
+    }
+    if (netBadge) {
+      netBadge.textContent = isOnline
+        ? '100% OFFLINE READY VIA SATELLITE GPS'
+        : 'OFFLINE MODE: QUEUED TO DEVICE LEDGER';
+    }
+  }
+
+  window.addEventListener('online', updateNetworkStatus);
+  window.addEventListener('offline', updateNetworkStatus);
+  updateNetworkStatus();
+
+  // 3. Location Mode Selection (Live GPS vs Desired Location)
+  const modeGpsBtn = document.getElementById('btn-mode-gps');
+  const modeDesiredBtn = document.getElementById('btn-mode-desired');
+  const quickLandmarks = document.getElementById('quick-landmarks');
   const gpsBtn = document.getElementById('btn-get-gps');
   const locationInput = document.getElementById('input-location');
 
+  if (modeGpsBtn && modeDesiredBtn) {
+    modeGpsBtn.addEventListener('click', () => {
+      modeGpsBtn.classList.add('active');
+      modeDesiredBtn.classList.remove('active');
+      if (quickLandmarks) quickLandmarks.style.display = 'none';
+      if (gpsBtn) gpsBtn.style.display = 'inline-block';
+    });
+
+    modeDesiredBtn.addEventListener('click', () => {
+      modeDesiredBtn.classList.add('active');
+      modeGpsBtn.classList.remove('active');
+      if (quickLandmarks) quickLandmarks.style.display = 'flex';
+      if (gpsBtn) gpsBtn.style.display = 'none';
+    });
+  }
+
+  // Quick Landmark Button Selection
+  const landmarkButtons = document.querySelectorAll('.btn-landmark');
+  landmarkButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      landmarkButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const lat = parseFloat(btn.getAttribute('data-lat'));
+      const lng = parseFloat(btn.getAttribute('data-lng'));
+      const name = btn.getAttribute('data-name');
+
+      detectedCoords.lat = lat;
+      detectedCoords.lng = lng;
+      detectedCoords.x = ((lng - 75.7804) * 2000).toFixed(1);
+      detectedCoords.z = ((11.2588 - lat) * 2000).toFixed(1);
+      detectedCoords.y = 0.5;
+
+      if (locationInput) {
+        locationInput.value = name;
+      }
+    });
+  });
+
+  // Hardware Satellite GPS Detection
   if (gpsBtn && locationInput) {
     gpsBtn.addEventListener('click', () => {
-      gpsBtn.textContent = 'DETECTING...';
+      gpsBtn.textContent = 'LOCKING SATELLITES...';
 
       if ('geolocation' in navigator) {
         navigator.geolocation.getCurrentPosition(
@@ -38,28 +107,29 @@ document.addEventListener('DOMContentLoaded', () => {
             const lng = pos.coords.longitude;
             detectedCoords.lat = lat;
             detectedCoords.lng = lng;
-            // Map lat/long delta relative to Calicut center (11.2588, 75.7804) to 3D world space
+            // Map lat/long delta relative to Calicut center to 3D twin space
             detectedCoords.x = ((lng - 75.7804) * 2000).toFixed(1);
             detectedCoords.z = ((11.2588 - lat) * 2000).toFixed(1);
             detectedCoords.y = 0.5;
 
-            locationInput.value = `Geotagged (Lat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)}) - Calicut Municipal Sector`;
+            locationInput.value = `Live Satellite GPS (${lat.toFixed(4)} N, ${lng.toFixed(4)} E) - Calicut Sector`;
             gpsBtn.textContent = 'GPS LOCKED';
           },
           (err) => {
-            // Simulated accurate Calicut coordinates fallback
-            detectedCoords.lat = 11.2588 + (Math.random() - 0.5) * 0.04;
-            detectedCoords.lng = 75.7804 + (Math.random() - 0.5) * 0.04;
-            detectedCoords.x = Math.round((Math.random() - 0.5) * 120);
-            detectedCoords.z = Math.round((Math.random() - 0.5) * 120);
+            // Realistic Calicut municipal coordinate fallback
+            detectedCoords.lat = 11.2588;
+            detectedCoords.lng = 75.7804;
+            detectedCoords.x = 25;
+            detectedCoords.z = -20;
+            detectedCoords.y = 0.5;
             locationInput.value = 'Mavoor Road Sector 4, Kozhikode (Ward 22)';
-            gpsBtn.textContent = 'FALLBACK LOCKED';
+            gpsBtn.textContent = 'DEFAULT PIN LOCKED';
           },
-          { timeout: 5000 }
+          { enableHighAccuracy: true, timeout: 6000 }
         );
       } else {
         locationInput.value = 'Mavoor Road Sector 4, Kozhikode (Ward 22)';
-        gpsBtn.textContent = 'MANUAL SET';
+        gpsBtn.textContent = 'MANUAL PIN';
       }
     });
   }

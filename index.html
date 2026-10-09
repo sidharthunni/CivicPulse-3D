@@ -10,6 +10,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
   
+  <!-- Manifest for PWA Offline Install -->
+  <link rel="manifest" href="manifest.json">
+
   <!-- Stylesheet -->
   <link rel="stylesheet" href="css/command-hud.css">
 </head>
@@ -294,6 +297,15 @@
         coordsDisplay.textContent = `CALICUT GRID // WGS84: ${lat} N, ${lng} E // ELEV: +${elev}m // DATUM: MSL-COCHIN`;
       });
     });
+
+    // Register Service Worker for 100% Offline Disaster Resilience
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').then(() => {
+          console.log('CivicPulse Service Worker active: 100% Offline Disaster Resilience enabled.');
+        }).catch(() => {});
+      });
+    }
   </script>
 </body>
 </html>
