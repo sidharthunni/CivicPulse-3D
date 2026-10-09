@@ -401,15 +401,15 @@ class TwinEngine {
     const treeTrunkMat = new THREE.MeshStandardMaterial({ color: 0x78350f, roughness: 0.9 });
     const treeFoliageMat = new THREE.MeshStandardMaterial({ color: 0x166534, roughness: 0.8 });
 
-    // 1. Campus Internal Road Network (Rajpath & Link Avenues)
+    // 1. Campus Internal Road Network (Straight Axial Rajpath & Link Avenues)
     const roads = [
-      { x: 55, z: -48, w: 10, l: 24 },    // Main Gate entry link
-      { x: 80, z: -55, w: 44, l: 8 },     // Rajpath West
+      { x: 105, z: -40, w: 12, l: 44 },   // Main Entrance Avenue (Rajpath) straight from Gate (z=-18) to Gandhi Circle (z=-62)
       { x: 105, z: -62, w: 32, l: 32, isRoundabout: true }, // Gandhi Circle roundabout
-      { x: 105, z: -76, w: 8, l: 24 },    // Admin Block approach
-      { x: 135, z: -74, w: 50, l: 8 },    // East avenue to Hostels
-      { x: 138, z: -105, w: 8, l: 52 },   // North avenue to Departments
-      { x: 80, z: -105, w: 8, l: 40 }     // West avenue to Sports Complex & OAT
+      { x: 105, z: -75, w: 10, l: 24 },   // Admin Block approach driveway
+      { x: 138, z: -62, w: 52, l: 9 },    // East avenue to Central Library & Mega Hostels
+      { x: 72, z: -62, w: 50, l: 9 },     // West avenue to CCC & Sports Ground
+      { x: 140, z: -98, w: 9, l: 64 },    // North-East avenue to Engineering Quadrangle (CSE/Mech/Civil)
+      { x: 65, z: -98, w: 9, l: 64 }      // North-West avenue to Athletic Ground & OAT
     ];
 
     roads.forEach(r => {
@@ -431,29 +431,33 @@ class TwinEngine {
       }
     });
 
-    // 2. Main Gate & Kattangal Entrance Arch
-    const gateX = 55;
-    const gateZ = -48;
+    // 2. Main Gate & Kattangal Entrance Arch (Directly on the Central Axis x = 105)
+    const gateX = 105;
+    const gateZ = -18;
     const gateY = this.getTerrainHeight(gateX, gateZ);
 
-    const pGeo = new THREE.BoxGeometry(2, 7.5, 2);
+    const pGeo = new THREE.BoxGeometry(2.2, 7.5, 2.2);
+    // Left Pillar (Western side of gate opening)
     const leftP = new THREE.Mesh(pGeo, trimMat);
-    leftP.position.set(gateX, gateY + 3.75, gateZ - 6);
+    leftP.position.set(gateX - 7.5, gateY + 3.75, gateZ);
     this.campusGroup.add(leftP);
 
+    // Right Pillar (Eastern side of gate opening)
     const rightP = new THREE.Mesh(pGeo, trimMat);
-    rightP.position.set(gateX, gateY + 3.75, gateZ + 6);
+    rightP.position.set(gateX + 7.5, gateY + 3.75, gateZ);
     this.campusGroup.add(rightP);
 
-    const archBeam = new THREE.Mesh(new THREE.BoxGeometry(2.4, 1.8, 14.5), adminMat);
+    // Grand Arch Spanning the Gate across East-West
+    const archBeam = new THREE.Mesh(new THREE.BoxGeometry(17.5, 1.8, 2.4), adminMat);
     archBeam.position.set(gateX, gateY + 7.5, gateZ);
     this.campusGroup.add(archBeam);
 
+    // Security Gate Cabin
     const securityCabin = new THREE.Mesh(new THREE.BoxGeometry(4.5, 3.5, 4.5), houseWallMat);
-    securityCabin.position.set(gateX - 5, gateY + 1.75, gateZ + 7);
+    securityCabin.position.set(gateX - 11.5, gateY + 1.75, gateZ);
     this.campusGroup.add(securityCabin);
 
-    this.createCampusTag("MAIN GATE & KATTANGAL BAZAAR", gateX, gateY + 13, gateZ, "#10b981", null, 4.0);
+    this.createCampusTag("MAIN GATE & KATTANGAL ENTRANCE", gateX, gateY + 13, gateZ, "#10b981", null, 4.0);
 
     // 3. Gandhi Circle Roundabout & National Tricolour Flagpole
     const circleX = 105;
@@ -710,24 +714,32 @@ class TwinEngine {
 
     this.createCampusTag("MAIN ATHLETIC GROUND & OAT", groundX, groundY + 18, groundZ, "#38bdf8", null, 4.0);
 
-    // 10. Kattangal Junction & Commercial Bazaar (Mukkam Highway)
-    const highwayGeo = new THREE.PlaneGeometry(12, 140);
+    // 10. Kattangal Junction & Commercial Bazaar (Mukkam Highway SH 34)
+    // Highway running East-West outside the gate
+    const highwayGeo = new THREE.PlaneGeometry(240, 14);
     highwayGeo.rotateX(-Math.PI / 2);
     const highwayRoad = new THREE.Mesh(highwayGeo, asphaltMat);
-    highwayRoad.position.set(45, this.getTerrainHeight(45, -85) + 0.15, -85);
+    highwayRoad.position.set(105, this.getTerrainHeight(105, -10) + 0.15, -10);
     highwayRoad.receiveShadow = true;
     this.campusGroup.add(highwayRoad);
 
-    // 8 Authentic Kerala Commercial Shops & Residential Houses
+    // Highway Center White Line
+    const hwLineGeo = new THREE.PlaneGeometry(240, 0.8);
+    hwLineGeo.rotateX(-Math.PI / 2);
+    const hwLine = new THREE.Mesh(hwLineGeo, new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.7 }));
+    hwLine.position.set(105, this.getTerrainHeight(105, -10) + 0.18, -10);
+    this.campusGroup.add(hwLine);
+
+    // 8 Authentic Kerala Commercial Shops & Residential Houses (South of Highway, facing North towards Gate)
     const bazaarShops = [
-      { x: 38, z: -45, w: 8, d: 7, h: 4.5, isShop: true },   // Calicut Bakery & Hot Chips
-      { x: 52, z: -35, w: 7, d: 6, h: 4.0, isShop: true },   // Chaya Kada (Tea & Snacks)
-      { x: 36, z: -65, w: 9, d: 7, h: 4.8, isShop: true },   // University Stationery & Xerox
-      { x: 38, z: -85, w: 8, d: 7, h: 4.5, isShop: true },   // Campus Pharmacy & Clinic
-      { x: 35, z: -105, w: 8, d: 6, h: 4.2, isShop: true },  // Fresh Fruit & Juice Bar
-      { x: 37, z: -125, w: 9, d: 8, h: 5.0, isShop: true },  // Local Provision & Grocery
-      { x: 48, z: -40, w: 6, d: 5, h: 3.5, isShop: true },   // Bus Waiting Passenger Shelter
-      { x: 50, z: -58, w: 7, d: 5, h: 3.8, isShop: true }    // Auto-Rickshaw Stand Shelter
+      { x: 70, z: 2, w: 9, d: 7, h: 4.8, isShop: true },   // Calicut Bakery & Hot Chips
+      { x: 86, z: 2, w: 8, d: 6, h: 4.2, isShop: true },   // Chaya Kada (Tea & Snacks)
+      { x: 124, z: 2, w: 9, d: 7, h: 4.8, isShop: true },  // University Stationery & Xerox
+      { x: 140, z: 2, w: 8, d: 7, h: 4.5, isShop: true },  // Campus Pharmacy & Clinic
+      { x: 156, z: 2, w: 8, d: 6, h: 4.2, isShop: true },  // Fresh Fruit & Juice Bar
+      { x: 54, z: 2, w: 9, d: 8, h: 5.0, isShop: true },   // Local Provision & Grocery
+      { x: 121, z: -4, w: 7, d: 4, h: 3.5, isShop: true }, // Bus Waiting Passenger Shelter
+      { x: 89, z: -4, w: 7, d: 4, h: 3.5, isShop: true }   // Auto-Rickshaw Stand Shelter
     ];
 
     bazaarShops.forEach(s => {
@@ -748,20 +760,23 @@ class TwinEngine {
       roofMesh.castShadow = true;
       this.campusGroup.add(roofMesh);
 
-      // Front awning over shop counter
+      // Front awning over shop counter (facing North toward highway)
       const awningGeo = new THREE.BoxGeometry(s.w * 0.9, 0.3, 2.2);
       const awningMat = new THREE.MeshStandardMaterial({ color: 0x0284c7 });
       const awningMesh = new THREE.Mesh(awningGeo, awningMat);
-      awningMesh.position.set(s.x + 0.5, sy + s.h * 0.75, s.z + s.d / 2 + 1);
+      awningMesh.position.set(s.x, sy + s.h * 0.75, s.z - s.d / 2 - 1);
       this.campusGroup.add(awningMesh);
     });
 
-    // 11. Tropical Palm Tree Clusters along Campus Perimeter
+    // 11. Avenue Trees symmetrically lining Rajpath Avenue & Perimeter
     const treeCoords = [
-      { x: 50, z: -42 }, { x: 50, z: -55 }, { x: 70, z: -46 }, { x: 85, z: -48 },
-      { x: 105, z: -45 }, { x: 125, z: -50 }, { x: 60, z: -78 }, { x: 60, z: -110 },
-      { x: 85, z: -105 }, { x: 135, z: -105 }, { x: 155, z: -120 }, { x: 42, z: -55 },
-      { x: 40, z: -78 }, { x: 42, z: -98 }, { x: 40, z: -118 }, { x: 48, z: -80 }
+      // Left side of Rajpath Avenue (x = 96)
+      { x: 96, z: -22 }, { x: 96, z: -32 }, { x: 96, z: -42 }, { x: 96, z: -52 },
+      // Right side of Rajpath Avenue (x = 114)
+      { x: 114, z: -22 }, { x: 114, z: -32 }, { x: 114, z: -42 }, { x: 114, z: -52 },
+      // Perimeter & Gandhi Circle flanks
+      { x: 85, z: -55 }, { x: 125, z: -55 }, { x: 75, z: -85 }, { x: 135, z: -85 },
+      { x: 60, z: -110 }, { x: 155, z: -115 }, { x: 50, z: -130 }, { x: 160, z: -70 }
     ];
 
     treeCoords.forEach(t => {
@@ -796,12 +811,12 @@ class TwinEngine {
 
     // 1. Catmull-Rom Spline Curve from Flooded Terrain to East Ridge Safe Haven
     const waypoints = [
-      new THREE.Vector3(38, 1.5, -35),   // Flooded low-lying Chaliyar/Mavoor road (Origin)
-      new THREE.Vector3(46, 3.8, -42),   // Elevated Kattangal junction turn
-      new THREE.Vector3(55, 6.2, -48),   // Safe entry through Main Gate
-      new THREE.Vector3(80, 10.5, -60),  // Central Rajpath Avenue
+      new THREE.Vector3(45, 1.2, -10),   // Flooded low-lying Mukkam Highway section (Origin)
+      new THREE.Vector3(75, 2.5, -12),   // Approaching Kattangal Bazaar
+      new THREE.Vector3(105, 4.2, -18),  // Safe entry through Main Gate
+      new THREE.Vector3(105, 8.5, -40),  // Straight along Central Rajpath Avenue
       new THREE.Vector3(105, 14.8, -62), // Gandhi Circle Roundabout
-      new THREE.Vector3(138, 19.2, -72), // East Ridge ascending road
+      new THREE.Vector3(138, 19.2, -62), // East Ridge ascending road
       new THREE.Vector3(172, 24.5, -82)  // Mega Hostels Safe Haven Plateau (+48.5m MSL)
     ];
 
@@ -870,8 +885,8 @@ class TwinEngine {
 
     // 3. Submerged Road Barricades (Closing Flooded Routes)
     const barricades = [
-      { x: 34, y: 0.8, z: -25, rot: 0.3 },
-      { x: 24, y: 0.6, z: -45, rot: -0.4 }
+      { x: 35, y: 0.8, z: -10, rot: 0 },
+      { x: 25, y: 0.6, z: -35, rot: -0.4 }
     ];
 
     barricades.forEach((b) => {
@@ -1010,7 +1025,7 @@ class TwinEngine {
     switch (presetName) {
       case "nit_admin":
       case "nit_calicut":
-        this.smoothCameraTransition(new THREE.Vector3(135, 42, -35), new THREE.Vector3(105, 14, -80));
+        this.smoothCameraTransition(new THREE.Vector3(130, 44, -22), new THREE.Vector3(105, 14, -75));
         break;
       case "nit_academic":
         this.smoothCameraTransition(new THREE.Vector3(180, 50, -80), new THREE.Vector3(138, 16, -115));
@@ -1022,7 +1037,7 @@ class TwinEngine {
         this.smoothCameraTransition(new THREE.Vector3(45, 42, -95), new THREE.Vector3(75, 10, -125));
         break;
       case "kattangal":
-        this.smoothCameraTransition(new THREE.Vector3(20, 26, -30), new THREE.Vector3(46, 6, -65));
+        this.smoothCameraTransition(new THREE.Vector3(105, 28, 22), new THREE.Vector3(105, 10, -35));
         break;
       case "kunnamangalam":
         this.smoothCameraTransition(new THREE.Vector3(15, 34, 15), new THREE.Vector3(30, 4, -20));
@@ -1047,11 +1062,11 @@ class TwinEngine {
   setPerspectiveMode(mode) {
     if (mode === "2d") {
       // Nadir Top-down 2D Copernicus Earth Observation view
-      this.smoothCameraTransition(new THREE.Vector3(105, 340, -75), new THREE.Vector3(105, 0, -75), 1100);
+      this.smoothCameraTransition(new THREE.Vector3(105, 330, -55), new THREE.Vector3(105, 0, -55), 1100);
       return "2d";
     } else {
       // 3D Oblique Isometric Elevation Mesh
-      this.smoothCameraTransition(new THREE.Vector3(135, 42, -35), new THREE.Vector3(105, 14, -80), 1100);
+      this.smoothCameraTransition(new THREE.Vector3(130, 44, -22), new THREE.Vector3(105, 14, -75), 1100);
       return "3d";
     }
   }
