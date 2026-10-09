@@ -66,6 +66,7 @@
 
     <!-- Header Tactical Actions -->
     <div class="header-actions">
+      <button class="btn-tactical" id="btn-toggle-civ-mode">VIEW: MUNICIPAL COMMAND</button>
       <a href="citizen.html" target="_blank" class="btn-tactical primary">CITIZEN PORTAL</a>
       <button class="btn-tactical" id="btn-open-modal">ARCHITECTURE & B2G</button>
       <button class="btn-tactical" id="btn-toggle-sound">AUDIO: ON</button>
@@ -76,11 +77,15 @@
   <!-- Left Tactical HUD - Simulation & Drone Patrol -->
   <aside class="hud-panel" id="hud-left">
     <div class="panel-header">
-      <span class="panel-title">SIMULATION & DRONE PATROL</span>
-      <span class="panel-badge">REAL-TIME</span>
+      <span class="panel-title" id="left-panel-title">SIMULATION & DRONE PATROL</span>
+      <span class="panel-badge" id="left-panel-badge">REAL-TIME</span>
     </div>
     
     <div class="panel-body">
+      <!-- Civilian Friendly Advisory Banner -->
+      <div class="civilian-banner" id="civilian-welcome-banner">
+        <strong>Citizen Safety Advisory:</strong> Viewing live public hazard alerts and monsoon drainage status for Kozhikode. Use the Citizen Portal to report broken roads or clogged culverts.
+      </div>
       <!-- Section 1: Monsoon Inundation Simulation -->
       <div class="hud-section">
         <div class="section-label">
@@ -261,6 +266,87 @@
           <li><strong>State & Geospatial Store:</strong> LocalStorage persistent reactive store, WGS84 coordinates.</li>
           <li><strong>Deployment:</strong> GitHub Pages static web distribution + optional Node.js Express API.</li>
         </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Subsurface Soil & Pipe Scanner (GPR Mode) -->
+  <div class="modal-overlay" id="gpr-modal">
+    <div class="modal-card gpr-scanner-modal">
+      <div class="modal-card-header">
+        <span class="modal-card-title">GPR SOIL & SUBTERRANEAN PIPE SCANNER // 400 MHz RADAR DIAGNOSTIC</span>
+        <button class="modal-close-btn" id="btn-close-gpr">X</button>
+      </div>
+      <div class="modal-card-body">
+        <div class="gpr-radar-header">
+          <span>GROUND PENETRATING RADAR TRANSIT SLICE // TARGET: CP-2026-102 (SOUTH BEACH CORRIDOR)</span>
+          <span style="color: var(--status-critical); font-weight: 700;">CAVITY DETECTED</span>
+        </div>
+
+        <div class="gpr-visual-container">
+          <div class="gpr-depth-layers">
+            <!-- Layer 1 -->
+            <div class="gpr-layer asphalt">
+              <div class="gpr-layer-title">
+                <span>LAYER 1: ASPHALT WEARING COURSE & TIE-ROD</span>
+                <span class="gpr-layer-desc">Surface shear cracking and localized crater indentation (18cm depth).</span>
+              </div>
+              <div class="gpr-layer-depth">DEPTH: 0.0m - 0.15m</div>
+            </div>
+
+            <!-- Layer 2 -->
+            <div class="gpr-layer subbase">
+              <div class="gpr-layer-title">
+                <span style="color: #fca5a5;">LAYER 2: GRANULAR SUB-BASE & LATERITE (SINKHOLE VOID)</span>
+                <span class="gpr-layer-desc">Severe sub-base erosion. High dielectric anomaly indicating 1.8 m3 subterranean hollow pocket.</span>
+              </div>
+              <div class="gpr-layer-depth" style="color: var(--status-critical);">DEPTH: 0.15m - 0.85m</div>
+            </div>
+
+            <!-- Layer 3 -->
+            <div class="gpr-layer pipeline">
+              <div class="gpr-layer-title">
+                <span style="color: #38bdf8;">LAYER 3: UTILITY HORIZON // 300mm KWA WATER MAIN</span>
+                <span class="gpr-layer-desc">Active pressurized water leakage washing away foundation soil beneath roadway.</span>
+              </div>
+              <div class="gpr-layer-depth" style="color: var(--accent-cyan);">DEPTH: 0.85m - 1.80m</div>
+            </div>
+
+            <!-- Layer 4 -->
+            <div class="gpr-layer bedrock">
+              <div class="gpr-layer-title">
+                <span>LAYER 4: NATIVE HARD SILT & BEDROCK HORIZON</span>
+                <span class="gpr-layer-desc">Stable underlying stratum. Foundation secure below pipe horizon.</span>
+              </div>
+              <div class="gpr-layer-depth">DEPTH: 1.80m+</div>
+            </div>
+          </div>
+
+          <div class="gpr-sensor-grid">
+            <div class="gpr-sensor-box">
+              <span class="label">Radar Frequency</span>
+              <span class="val">400 MHz High-Res</span>
+            </div>
+            <div class="gpr-sensor-box">
+              <span class="label">Dielectric Constant</span>
+              <span class="val warning">64.2 (High Saturation)</span>
+            </div>
+            <div class="gpr-sensor-box">
+              <span class="label">Subsurface Void Vol</span>
+              <span class="val warning">1.8 m3 Cavity</span>
+            </div>
+            <div class="gpr-sensor-box">
+              <span class="label">AI Confidence</span>
+              <span class="val">97.4% Pipe Breach</span>
+            </div>
+          </div>
+
+          <div class="gpr-verdict-banner">
+            <strong>MUNICIPAL INTER-AGENCY BINDING VERDICT:</strong>
+            Subsurface GPR scan proves the road crater is caused by a subterranean KWA pipeline rupture washing away the sub-base soil. 
+            <strong>Action:</strong> PWD road repaving is automatically LOCKED until KWA excavation team seals the water main breach. This prevents spending public funds on asphalt that would collapse again within 14 days.
+          </div>
+        </div>
       </div>
     </div>
   </div>

@@ -181,6 +181,10 @@ class HUDController {
           <div class="evidence-badge">GEOTAGGED EVIDENCE PHOTOGRAPH</div>
         </div>
 
+        <button class="btn-tactical primary" id="btn-open-gpr" style="width: 100%; margin-top: 6px; padding: 7px; justify-content: center; font-size: 10px;">
+          RUN GPR SOIL & PIPE SCANNER
+        </button>
+
         <div class="audit-hash-bar">
           <div>
             <div class="hash-label">Public Audit Ledger Hash</div>
@@ -208,6 +212,24 @@ class HUDController {
         </div>
       </div>
     `;
+
+    // Bind GPR Scanner Button
+    const gprBtn = document.getElementById('btn-open-gpr');
+    const gprModal = document.getElementById('gpr-modal');
+    if (gprBtn && gprModal) {
+      gprBtn.addEventListener('click', () => {
+        gprModal.classList.add('active');
+        if (window.simController) window.simController.playTacticalBeep(920, 'square', 0.12);
+        if (window.twinEngine) window.twinEngine.triggerSubsurfaceScan(inc.id);
+      });
+    }
+
+    const closeGprBtn = document.getElementById('btn-close-gpr');
+    if (closeGprBtn && gprModal) {
+      closeGprBtn.addEventListener('click', () => {
+        gprModal.classList.remove('active');
+      });
+    }
 
     // Bind Copy Hash Button
     const copyBtn = document.getElementById('btn-copy-hash');
@@ -297,6 +319,7 @@ class HUDController {
     const modal = document.getElementById('info-modal');
     const openBtn = document.getElementById('btn-open-modal');
     const closeBtn = document.getElementById('btn-close-modal');
+    const gprModal = document.getElementById('gpr-modal');
 
     if (openBtn && modal) {
       openBtn.addEventListener('click', () => {
@@ -316,10 +339,30 @@ class HUDController {
         if (e.target === modal) modal.classList.remove('active');
       });
     }
+
+    if (gprModal) {
+      gprModal.addEventListener('click', (e) => {
+        if (e.target === gprModal) gprModal.classList.remove('active');
+      });
+    }
   }
 
-  // 8. Quick Actions (Fullscreen, Sound Toggle)
+  // 8. Quick Actions (Fullscreen, Sound Toggle, Civilian View)
   initQuickActions() {
+    const civBtn = document.getElementById('btn-toggle-civ-mode');
+    if (civBtn) {
+      civBtn.addEventListener('click', () => {
+        document.body.classList.toggle('civilian-mode');
+        const isCiv = document.body.classList.contains('civilian-mode');
+        civBtn.textContent = isCiv ? 'VIEW: CITIZEN FRIENDLY' : 'VIEW: MUNICIPAL COMMAND';
+        const leftTitle = document.getElementById('left-panel-title');
+        if (leftTitle) {
+          leftTitle.textContent = isCiv ? 'CITY HAZARDS & RAIN STATUS' : 'SIMULATION & DRONE PATROL';
+        }
+        if (window.simController) window.simController.playTacticalBeep(780, 'sine', 0.08);
+      });
+    }
+
     const fsBtn = document.getElementById('btn-toggle-fs');
     if (fsBtn) {
       fsBtn.addEventListener('click', () => {

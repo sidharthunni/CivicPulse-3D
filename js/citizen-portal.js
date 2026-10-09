@@ -331,4 +331,115 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   renderLedgerList();
+
+  // 7. Bilingual Malayalam / English Language Switcher
+  let currentLanguage = 'en';
+  const langToggleBtn = document.getElementById('btn-toggle-lang');
+
+  const translations = {
+    en: {
+      btnLang: 'മലയാളം (MALAYALAM)',
+      brandTitle: 'CIVICPULSE CITIZEN',
+      heroTitle: 'Report Municipal Hazard or Infrastructure Breach',
+      heroDesc: 'Your submission is geocoded, triaged via autonomous computer vision, assigned to responsible public works agencies, and stamped onto an immutable public audit ledger.',
+      step1: 'CHOOSE HAZARD CATEGORY',
+      step2: 'WHERE IS THE HAZARD LOCATED?',
+      step3: 'EXPLAIN THE ISSUE (VOICE / TEXT)',
+      step4: 'SITE PHOTOGRAPH & AI DEFECT CHECK',
+      step5: 'YOUR DETAILS & SUBMISSION',
+      lblCategory: 'Hazard Category',
+      lblLocation: 'Geographic Location',
+      lblLandmarks: 'QUICK DESIRED CORRIDOR:',
+      lblTitle: 'Title / Summary',
+      lblDesc: 'Detailed Description',
+      lblPhoto: 'Photographic Evidence',
+      lblCitizenName: 'Citizen Full Name / Ward Resident ID',
+      btnGps: 'LOCK SATELLITE GPS',
+      btnVoice: 'VOICE NOTE',
+      btnSubmit: 'LODGE INCIDENT TO SPATIAL LEDGER',
+      catDrainageName: 'Drainage & Flooding',
+      catDrainageDesc: 'Culvert breach, stormwater backflow',
+      catRoadName: 'Roads & Potholes',
+      catRoadDesc: 'Asphalt crater, base layer subsidence',
+      catWasteName: 'Waste Management',
+      catWasteDesc: 'Illegal dumping, canal choking debris',
+      catElectricalName: 'Electrical Hazard',
+      catElectricalDesc: 'Sagging 11kV cable, sparking transformer',
+      catSlopeName: 'Landslide & Slope',
+      catSlopeDesc: 'Hillside tension crack, mudslide risk'
+    },
+    ml: {
+      btnLang: 'ENGLISH (ഇംഗ്ലീഷ്)',
+      brandTitle: 'സിവിക്പൾസ് പൗരസേവനം',
+      heroTitle: 'റോഡ്, വെള്ളക്കെട്ട് തകരാറുകൾ അറിയിക്കുക',
+      heroDesc: 'നിങ്ങൾ നൽകുന്ന പരാതി നേരിട്ട് ബന്ധപ്പെട്ട വകുപ്പുകൾക്ക് (PWD, KWA, KSEB) ലഭിക്കുകയും അതിവേഗം പരിഹരിക്കപ്പെടുകയും ചെയ്യുന്നു.',
+      step1: 'ഘട്ടം 1: പ്രശ്നത്തിന്റെ തരം തിരഞ്ഞെടുക്കുക',
+      step2: 'ഘട്ടം 2: സ്ഥലം എവിടെയാണ്? (ജി.പി.എസ്)',
+      step3: 'ഘട്ടം 3: വിശദാംശങ്ങൾ പറയുക / എഴുതുക',
+      step4: 'ഘട്ടം 4: ഫോട്ടോ എടുക്കുക (AI പരിശോധന)',
+      step5: 'ഘട്ടം 5: നിങ്ങളുടെ പേരും സമർപ്പണവും',
+      lblCategory: 'പ്രശ്നത്തിന്റെ തരം',
+      lblLocation: 'സ്ഥലം / റോഡ്',
+      lblLandmarks: 'പ്രധാന സ്ഥലങ്ങൾ:',
+      lblTitle: 'പരാതിയുടെ തലക്കെട്ട്',
+      lblDesc: 'വിശദമായ വിവരങ്ങൾ',
+      lblPhoto: 'സ്ഥലത്തിന്റെ ഫോട്ടോ',
+      lblCitizenName: 'നിങ്ങളുടെ പേര് / വാർഡ് നമ്പർ',
+      btnGps: 'എന്റെ ലൊക്കേഷൻ രേഖപ്പെടുത്തുക',
+      btnVoice: 'ശബ്ദ സന്ദേശം നൽകുക',
+      btnSubmit: 'പരാതി സമർപ്പിക്കുക',
+      catDrainageName: 'വെള്ളക്കെട്ട് / ഓവുചാൽ',
+      catDrainageDesc: 'ഡ്രെയിനേജ് ബ്ലോക്ക്, വെള്ളപ്പൊക്ക സാധ്യത',
+      catRoadName: 'തകർന്ന റോഡുകൾ / കുഴികൾ',
+      catRoadDesc: 'റോഡിലെ വലിയ കുഴികൾ, ടാർ ഇളകൽ',
+      catWasteName: 'മാലിന്യ നിക്ഷേപം',
+      catWasteDesc: 'തോട്ടിലോ റോഡിലോ തള്ളിയ മാലിന്യം',
+      catElectricalName: 'വൈദ്യുതി ലൈൻ തകരാർ',
+      catElectricalDesc: 'താഴ്ന്നു കിടക്കുന്ന കേബിളുകൾ, ട്രാൻസ്ഫോർമർ',
+      catSlopeName: 'മണ്ണിടിച്ചിൽ ഭീഷണി',
+      catSlopeDesc: 'റോഡിന്റെ വശം ഇടിയൽ, വിള്ളലുകൾ'
+    }
+  };
+
+  function applyLanguage(lang) {
+    const t = translations[lang];
+    if (!t) return;
+    if (langToggleBtn) langToggleBtn.textContent = t.btnLang;
+    const setTxt = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+    setTxt('brand-title-text', t.brandTitle);
+    setTxt('hero-title', t.heroTitle);
+    setTxt('hero-desc', t.heroDesc);
+    setTxt('lbl-step1', t.step1);
+    setTxt('lbl-step2', t.step2);
+    setTxt('lbl-step3', t.step3);
+    setTxt('lbl-step4', t.step4);
+    setTxt('lbl-step5', t.step5);
+    setTxt('lbl-category', t.lblCategory);
+    setTxt('lbl-location', t.lblLocation);
+    setTxt('lbl-landmarks', t.lblLandmarks);
+    setTxt('lbl-title', t.lblTitle);
+    setTxt('lbl-desc', t.lblDesc);
+    setTxt('lbl-photo', t.lblPhoto);
+    setTxt('lbl-citizen-name', t.lblCitizenName);
+    setTxt('btn-get-gps', t.btnGps);
+    setTxt('btn-voice-input', t.btnVoice);
+    setTxt('btn-submit-report', t.btnSubmit);
+    setTxt('cat-drainage-name', t.catDrainageName);
+    setTxt('cat-drainage-desc', t.catDrainageDesc);
+    setTxt('cat-road-name', t.catRoadName);
+    setTxt('cat-road-desc', t.catRoadDesc);
+    setTxt('cat-waste-name', t.catWasteName);
+    setTxt('cat-waste-desc', t.catWasteDesc);
+    setTxt('cat-electrical-name', t.catElectricalName);
+    setTxt('cat-electrical-desc', t.catElectricalDesc);
+    setTxt('cat-slope-name', t.catSlopeName);
+    setTxt('cat-slope-desc', t.catSlopeDesc);
+  }
+
+  if (langToggleBtn) {
+    langToggleBtn.addEventListener('click', () => {
+      currentLanguage = currentLanguage === 'en' ? 'ml' : 'en';
+      applyLanguage(currentLanguage);
+    });
+  }
 });

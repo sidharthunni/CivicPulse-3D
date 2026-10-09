@@ -22,9 +22,12 @@
   <header class="portal-header">
     <div class="portal-brand">
       <span class="brand-badge-pill">BROTOTYPE GOVTECH</span>
-      <span class="brand-title-text">CIVICPULSE CITIZEN</span>
+      <span class="brand-title-text" id="brand-title-text">CIVICPULSE CITIZEN</span>
     </div>
-    <a href="index.html" class="btn-nav-twin">LAUNCH 3D COMMAND VIEW</a>
+    <div class="header-right-tools">
+      <button type="button" class="btn-lang-toggle" id="btn-toggle-lang">മലയാളം (MALAYALAM)</button>
+      <a href="index.html" class="btn-nav-twin">LAUNCH 3D COMMAND VIEW</a>
+    </div>
   </header>
 
   <main class="portal-container">
@@ -39,8 +42,8 @@
 
     <!-- Welcome Card -->
     <section class="hero-card">
-      <h1 class="hero-title">Report Municipal Hazard or Infrastructure Breach</h1>
-      <p class="hero-desc">
+      <h1 class="hero-title" id="hero-title">Report Municipal Hazard or Infrastructure Breach</h1>
+      <p class="hero-desc" id="hero-desc">
         Your submission is geocoded, triaged via autonomous computer vision, assigned to responsible public works agencies, and stamped onto an immutable public audit ledger.
       </p>
     </section>
@@ -48,43 +51,45 @@
     <!-- Reporting Form -->
     <section class="reporting-card">
       <form id="citizen-report-form">
-        <!-- Title Input -->
+        <!-- Step 1: Category Picker -->
         <div class="form-group">
-          <label class="form-label" for="input-title">Incident Title / Brief Summary</label>
-          <input type="text" id="input-title" class="form-input" placeholder="e.g. Severely Clogged Culvert Flooding Street" required value="Subterranean Drainage Culvert Rupture">
-        </div>
-
-        <!-- Category Picker -->
-        <div class="form-group">
-          <label class="form-label">Hazard Category</label>
+          <div class="step-indicator">
+            <span class="step-num">1</span>
+            <span class="step-text" id="lbl-step1">CHOOSE HAZARD CATEGORY</span>
+          </div>
+          <label class="form-label" id="lbl-category">Hazard Category</label>
           <div class="category-selector">
             <div class="category-option selected" data-category="drainage">
-              <span class="category-option-name">Drainage & Flooding</span>
-              <span class="category-option-desc">Culvert breach, stormwater backflow</span>
+              <span class="category-option-name" id="cat-drainage-name">Drainage & Flooding</span>
+              <span class="category-option-desc" id="cat-drainage-desc">Culvert breach, stormwater backflow</span>
             </div>
             <div class="category-option" data-category="road">
-              <span class="category-option-name">Roads & Potholes</span>
-              <span class="category-option-desc">Asphalt crater, base layer subsidence</span>
+              <span class="category-option-name" id="cat-road-name">Roads & Potholes</span>
+              <span class="category-option-desc" id="cat-road-desc">Asphalt crater, base layer subsidence</span>
             </div>
             <div class="category-option" data-category="waste">
-              <span class="category-option-name">Waste Management</span>
-              <span class="category-option-desc">Illegal dumping, canal choking debris</span>
+              <span class="category-option-name" id="cat-waste-name">Waste Management</span>
+              <span class="category-option-desc" id="cat-waste-desc">Illegal dumping, canal choking debris</span>
             </div>
             <div class="category-option" data-category="electrical">
-              <span class="category-option-name">Electrical Hazard</span>
-              <span class="category-option-desc">Sagging 11kV cable, sparking transformer</span>
+              <span class="category-option-name" id="cat-electrical-name">Electrical Hazard</span>
+              <span class="category-option-desc" id="cat-electrical-desc">Sagging 11kV cable, sparking transformer</span>
             </div>
             <div class="category-option" data-category="slope">
-              <span class="category-option-name">Landslide & Slope</span>
-              <span class="category-option-desc">Hillside tension crack, mudslide risk</span>
+              <span class="category-option-name" id="cat-slope-name">Landslide & Slope</span>
+              <span class="category-option-desc" id="cat-slope-desc">Hillside tension crack, mudslide risk</span>
             </div>
           </div>
         </div>
 
-        <!-- Location Geocode: Live GPS vs Desired Location -->
+        <!-- Step 2: Location Geocode -->
         <div class="form-group">
+          <div class="step-indicator">
+            <span class="step-num">2</span>
+            <span class="step-text" id="lbl-step2">WHERE IS THE HAZARD LOCATED?</span>
+          </div>
           <div class="section-label-row">
-            <label class="form-label" for="input-location">Geographic Location</label>
+            <label class="form-label" for="input-location" id="lbl-location">Geographic Location</label>
             <div class="location-mode-toggle">
               <button type="button" class="btn-mode active" id="btn-mode-gps">LIVE HARDWARE GPS</button>
               <button type="button" class="btn-mode" id="btn-mode-desired">DESIRED LOCATION</button>
@@ -97,7 +102,7 @@
           </div>
 
           <div class="quick-landmarks-row" id="quick-landmarks" style="display: none;">
-            <span class="quick-landmark-label">QUICK DESIRED CORRIDOR:</span>
+            <span class="quick-landmark-label" id="lbl-landmarks">QUICK DESIRED CORRIDOR:</span>
             <button type="button" class="btn-landmark active" data-landmark="mavoor" data-lat="11.2588" data-lng="75.7804" data-name="Mavoor Road Sector 4, Kozhikode (Ward 22)">Mavoor Road</button>
             <button type="button" class="btn-landmark" data-landmark="beach" data-lat="11.2467" data-lng="75.7725" data-name="South Beach Road Near Old Pier (Ward 14)">Beach Road</button>
             <button type="button" class="btn-landmark" data-landmark="kallai" data-lat="11.2319" data-lng="75.7952" data-name="Kallai River Bank Industrial Sector">Kallai Estuary</button>
@@ -106,36 +111,51 @@
           </div>
         </div>
 
-        <!-- Description with Voice-to-Text -->
+        <!-- Step 3: Description with Voice-to-Text -->
         <div class="form-group">
-          <label class="form-label" for="input-description">Detailed Description / Observations</label>
+          <div class="step-indicator">
+            <span class="step-num">3</span>
+            <span class="step-text" id="lbl-step3">EXPLAIN THE ISSUE (VOICE / TEXT)</span>
+          </div>
+          <label class="form-label" for="input-title" id="lbl-title">Title / Summary</label>
+          <input type="text" id="input-title" class="form-input" placeholder="e.g. Severely Clogged Culvert Flooding Street" required value="Subterranean Drainage Culvert Rupture" style="margin-bottom: 10px;">
+          
+          <label class="form-label" for="input-description" id="lbl-desc">Detailed Description</label>
           <div class="input-with-action">
             <textarea id="input-description" class="form-textarea" placeholder="Describe the severity, depth, waterlogging, or hazards observed...">Primary drainage culvert cracked following continuous monsoon downpour. Water level rising rapidly across commercial corridor link.</textarea>
             <button type="button" class="btn-voice" id="btn-voice-input">VOICE NOTE</button>
           </div>
         </div>
 
-        <!-- Photographic Evidence & AI Scanner -->
+        <!-- Step 4: Photographic Evidence & AI Scanner -->
         <div class="form-group">
-          <label class="form-label">Photographic Evidence</label>
+          <div class="step-indicator">
+            <span class="step-num">4</span>
+            <span class="step-text" id="lbl-step4">SITE PHOTOGRAPH & AI DEFECT CHECK</span>
+          </div>
+          <label class="form-label" id="lbl-photo">Photographic Evidence</label>
           <div class="photo-uploader" id="photo-dropzone">
             <input type="file" id="file-upload" accept="image/*">
-            <div class="uploader-title">Click to capture or upload site photograph</div>
-            <div class="uploader-subtitle">Automatic AI visual defect classification will initiate</div>
+            <div class="uploader-title" id="lbl-photo-title">Click to capture or upload site photograph</div>
+            <div class="uploader-subtitle" id="lbl-photo-subtitle">Automatic AI visual defect classification will initiate</div>
           </div>
 
           <!-- AI Neural Triage Readout -->
           <div class="ai-triage-result" id="ai-triage-box">
-            <div class="ai-triage-title">Autonomous AI Triage Assessment</div>
+            <div class="ai-triage-title" id="lbl-ai-title">Autonomous AI Triage Assessment</div>
             <div class="ai-triage-detail" id="ai-triage-detail">
               Detecting pattern...
             </div>
           </div>
         </div>
 
-        <!-- Citizen Name / Identity -->
+        <!-- Step 5: Citizen Name & Submit -->
         <div class="form-group">
-          <label class="form-label" for="input-name">Citizen Full Name / Ward Resident ID</label>
+          <div class="step-indicator">
+            <span class="step-num">5</span>
+            <span class="step-text" id="lbl-step5">YOUR DETAILS & SUBMISSION</span>
+          </div>
+          <label class="form-label" for="input-name" id="lbl-citizen-name">Citizen Full Name / Ward Resident ID</label>
           <input type="text" id="input-name" class="form-input" placeholder="e.g. K. Radhakrishnan (Ward 22)" value="S. Unnithan (Citizen #5102)">
         </div>
 

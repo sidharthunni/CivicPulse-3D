@@ -1013,3 +1013,162 @@ input[type="range"].tactical-slider::-webkit-slider-thumb:hover {
     right: 8px;
   }
 }
+
+/* Subsurface Soil & Pipe Scanner (GPR Mode) */
+.gpr-scanner-modal {
+  width: 760px;
+  max-width: 95vw;
+}
+
+.gpr-visual-container {
+  background: #020617;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  margin: 14px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.gpr-radar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--accent-cyan);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 8px;
+}
+
+.gpr-depth-layers {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.gpr-layer {
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  font-family: var(--font-mono);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.gpr-layer.asphalt {
+  background: linear-gradient(90deg, #1e293b, #334155);
+}
+
+.gpr-layer.subbase {
+  background: linear-gradient(90deg, rgba(239, 68, 68, 0.25), rgba(185, 28, 28, 0.15));
+  border-color: rgba(239, 68, 68, 0.5);
+}
+
+.gpr-layer.pipeline {
+  background: linear-gradient(90deg, rgba(2, 132, 199, 0.3), rgba(3, 105, 161, 0.18));
+  border-color: rgba(56, 189, 248, 0.5);
+}
+
+.gpr-layer.bedrock {
+  background: linear-gradient(90deg, #090d16, #0f172a);
+}
+
+.gpr-layer-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+}
+
+.gpr-layer-desc {
+  font-size: 9px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.gpr-layer-depth {
+  font-size: 10px;
+  color: var(--accent-cyan);
+  font-weight: 700;
+  text-align: right;
+}
+
+.gpr-sensor-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.gpr-sensor-box {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-sm);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+}
+
+.gpr-sensor-box .label {
+  font-size: 8px;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.gpr-sensor-box .val {
+  font-size: 12px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--accent-cyan);
+  margin-top: 2px;
+}
+
+.gpr-sensor-box .val.warning {
+  color: var(--status-critical);
+}
+
+.gpr-verdict-banner {
+  background: rgba(239, 68, 68, 0.14);
+  border-left: 3px solid var(--status-critical);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  padding: 10px 14px;
+  margin-top: 12px;
+  font-size: 11px;
+  color: #fecaca;
+  line-height: 1.5;
+}
+
+/* Civilian Friendly Mode Styling */
+body.civilian-mode .panel-title {
+  letter-spacing: 0.5px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+}
+
+body.civilian-mode .telemetry-label {
+  font-family: var(--font-sans);
+  font-size: 10px;
+}
+
+.civilian-banner {
+  display: none;
+  background: linear-gradient(135deg, rgba(2, 132, 199, 0.25), rgba(15, 23, 42, 0.9));
+  border: 1px solid var(--border-color);
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 12px;
+  font-size: 11px;
+  color: #e0f2fe;
+}
+
+body.civilian-mode .civilian-banner {
+  display: block;
+}
+

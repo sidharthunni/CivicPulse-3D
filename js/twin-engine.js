@@ -466,6 +466,50 @@ class TwinEngine {
     this.renderer.domElement.style.cursor = intersects.length > 0 ? "pointer" : "default";
   }
 
+  triggerSubsurfaceScan(id) {
+    const inc = window.CivicStore.getById(id);
+    if (!inc) return;
+
+    if (this.subsurfaceScanGroup) {
+      this.scene.remove(this.subsurfaceScanGroup);
+    }
+
+    this.subsurfaceScanGroup = new THREE.Group();
+    this.subsurfaceScanGroup.position.set(inc.x, inc.y, inc.z);
+
+    // Subsurface inspection wireframe grid
+    const boxGeo = new THREE.BoxGeometry(18, 14, 18);
+    const wireframeMat = new THREE.MeshBasicMaterial({
+      color: 0x38bdf8,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.75
+    });
+    const scanBox = new THREE.Mesh(boxGeo, wireframeMat);
+    scanBox.position.y = -7;
+    this.subsurfaceScanGroup.add(scanBox);
+
+    // Subterranean ruptured pipeline visual (KWA water main)
+    const pipeGeo = new THREE.CylinderGeometry(1.4, 1.4, 20, 16);
+    pipeGeo.rotateZ(Math.PI / 2);
+    const pipeMat = new THREE.MeshStandardMaterial({
+      color: 0xef4444,
+      emissive: 0xef4444,
+      emissiveIntensity: 0.9,
+      roughness: 0.3
+    });
+    const subPipe = new THREE.Mesh(pipeGeo, pipeMat);
+    subPipe.position.set(0, -6, 0);
+    this.subsurfaceScanGroup.add(subPipe);
+
+    this.scene.add(this.subsurfaceScanGroup);
+
+    // Transition camera to subsurface perspective
+    const targetCamPos = new THREE.Vector3(inc.x + 24, inc.y + 16, inc.z + 24);
+    const targetLookAt = new THREE.Vector3(inc.x, inc.y - 4, inc.z);
+    this.smoothCameraTransition(targetCamPos, targetLookAt, 900);
+  }
+
   onWindowResize() {
     if (!this.container || !this.renderer || !this.camera) return;
     const width = this.container.clientWidth;
