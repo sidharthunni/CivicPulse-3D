@@ -35,6 +35,7 @@ class TwinEngine {
     this.landmarkMeshes = [];
     this.landmarkMeasurementGroup = new THREE.Group();
     this.liveGpsMesh = null;
+    this.userGpsPosition = new THREE.Vector3(58, 14.5, -68);
 
     this.init();
   }
@@ -396,12 +397,13 @@ class TwinEngine {
     }
     this.landmarkMeshes = [];
 
-    // High quality authentic architectural materials
+    // Authentic architectural materials
     const adminMat = new THREE.MeshStandardMaterial({ color: 0xd6cfc4, roughness: 0.65, metalness: 0.1 });
     const trimMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.45, metalness: 0.4 });
     const pillarMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.25, metalness: 0.1 });
     const glassCyanMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, roughness: 0.15, metalness: 0.85, transparent: true, opacity: 0.82 });
-    const cccGlassMat = new THREE.MeshStandardMaterial({ color: 0x0284c7, roughness: 0.15, metalness: 0.9, transparent: true, opacity: 0.88 });
+    const itGlassMat = new THREE.MeshStandardMaterial({ color: 0x0284c7, roughness: 0.15, metalness: 0.9, transparent: true, opacity: 0.88 });
+    const cccGlassMat = new THREE.MeshStandardMaterial({ color: 0x0369a1, roughness: 0.15, metalness: 0.9, transparent: true, opacity: 0.88 });
     const academicMat = new THREE.MeshStandardMaterial({ color: 0xc8c3ba, roughness: 0.7, metalness: 0.15 });
     const workshopMat = new THREE.MeshStandardMaterial({ color: 0x64748b, roughness: 0.6, metalness: 0.4 });
     const hostelMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.5, metalness: 0.2 });
@@ -413,15 +415,27 @@ class TwinEngine {
     const treeTrunkMat = new THREE.MeshStandardMaterial({ color: 0x78350f, roughness: 0.9 });
     const treeFoliageMat = new THREE.MeshStandardMaterial({ color: 0x166534, roughness: 0.8 });
 
-    // 1. Campus Internal Road Network (Straight Axial Rajpath & Link Avenues)
+    // Tathva '26 Event Materials
+    const stallTrussMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.4, metalness: 0.8 });
+    const stallCanopyMat1 = new THREE.MeshStandardMaterial({ color: 0x0284c7, roughness: 0.5, metalness: 0.2 });
+    const stallCanopyMat2 = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.5, metalness: 0.3 });
+    const stallSignMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, emissive: 0x0284c7, emissiveIntensity: 0.8 });
+    const stallCounterMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.6 });
+
+    // 1. Campus Internal Road Network
     const roads = [
-      { x: 105, z: -40, w: 12, l: 44 },   // Main Entrance Avenue (Rajpath) straight from Gate (z=-18) to Gandhi Circle (z=-62)
+      { x: 105, z: -40, w: 12, l: 44 },   // Main Entrance Avenue (Rajpath) from Gate (z=-18) to Gandhi Circle (z=-62)
       { x: 105, z: -62, w: 32, l: 32, isRoundabout: true }, // Gandhi Circle roundabout
       { x: 105, z: -75, w: 10, l: 24 },   // Admin Block approach driveway
       { x: 138, z: -62, w: 52, l: 9 },    // East avenue to Central Library & Mega Hostels
-      { x: 72, z: -62, w: 50, l: 9 },     // West avenue to CCC & Sports Ground
+      { x: 72, z: -62, w: 50, l: 9 },     // West Link Avenue passing CCC and IT Lab Complex
+      { x: 58, z: -76, w: 8, l: 26 },     // IT Laboratory Complex north-south approach corridor
       { x: 140, z: -98, w: 9, l: 64 },    // North-East avenue to Engineering Quadrangle (CSE/Mech/Civil)
-      { x: 65, z: -98, w: 9, l: 64 }      // North-West avenue to Athletic Ground & OAT
+      { x: 65, z: -98, w: 9, l: 64 },     // North-West avenue to Athletic Ground, Canteen & SAC
+      { x: 135, z: -165, w: 10, l: 90 },  // Rear North Cross Avenue connecting NLHC, DAP, and ELHC
+      { x: 135, z: -200, w: 10, l: 90 },  // Far North Perimeter Avenue connecting Chemical, Physics, Math, and SOMS
+      { x: 205, z: -145, w: 8, l: 85 },   // East Residential Avenue connecting Hostels A-D & PG
+      { x: 55, z: -140, w: 8, l: 45 }     // West Student Activity Centre & Ground connector
     ];
 
     roads.forEach(r => {
@@ -443,7 +457,7 @@ class TwinEngine {
       }
     });
 
-    // 2. Main Gate & Kattangal Entrance Arch (Directly on the Central Axis x = 105, z = -18)
+    // 2. Main Gate & Kattangal Entrance Arch (Axis x = 105, z = -18)
     const gateX = 105;
     const gateZ = -18;
     const gateY = this.getTerrainHeight(gateX, gateZ);
@@ -463,37 +477,33 @@ class TwinEngine {
     };
 
     const pGeo = new THREE.BoxGeometry(2.2, 6.8, 2.2);
-    // Left Pillar (Western side)
     const leftP = new THREE.Mesh(pGeo, trimMat);
     leftP.position.set(gateX - 7.5, gateY + 3.4, gateZ);
     this.campusGroup.add(leftP);
     this.registerLandmarkMesh(leftP, gateLandmark);
 
-    // Right Pillar (Eastern side)
     const rightP = new THREE.Mesh(pGeo, trimMat);
     rightP.position.set(gateX + 7.5, gateY + 3.4, gateZ);
     this.campusGroup.add(rightP);
     this.registerLandmarkMesh(rightP, gateLandmark);
 
-    // Grand Arch Spanning the Gate across East-West
     const archBeam = new THREE.Mesh(new THREE.BoxGeometry(17.5, 1.4, 2.4), adminMat);
     archBeam.position.set(gateX, gateY + 7.2, gateZ);
     this.campusGroup.add(archBeam);
     this.registerLandmarkMesh(archBeam, gateLandmark);
 
-    // West Security Gate Cabin
+    // Dual Security Gate Lodges
     const securityCabinWest = new THREE.Mesh(new THREE.BoxGeometry(4.5, 3.4, 4.5), houseWallMat);
     securityCabinWest.position.set(gateX - 11.5, gateY + 1.7, gateZ);
     this.campusGroup.add(securityCabinWest);
     this.registerLandmarkMesh(securityCabinWest, gateLandmark);
 
-    // East Security Gate Cabin
     const securityCabinEast = new THREE.Mesh(new THREE.BoxGeometry(4.5, 3.4, 4.5), houseWallMat);
     securityCabinEast.position.set(gateX + 11.5, gateY + 1.7, gateZ);
     this.campusGroup.add(securityCabinEast);
     this.registerLandmarkMesh(securityCabinEast, gateLandmark);
 
-    // Formal NIT Calicut Perimeter Boundary Walls (replacing cluttered toy stalls)
+    // Perimeter Boundary Walls with Coping
     const wallWest = new THREE.Mesh(new THREE.BoxGeometry(75, 2.2, 0.6), boundaryWallMat);
     wallWest.position.set(gateX - 51.5, gateY + 1.1, gateZ);
     this.campusGroup.add(wallWest);
@@ -502,7 +512,6 @@ class TwinEngine {
     wallEast.position.set(gateX + 51.5, gateY + 1.1, gateZ);
     this.campusGroup.add(wallEast);
 
-    // Decorative coping on boundary walls
     const copingWest = new THREE.Mesh(new THREE.BoxGeometry(75.2, 0.25, 0.85), trimMat);
     copingWest.position.set(gateX - 51.5, gateY + 2.3, gateZ);
     this.campusGroup.add(copingWest);
@@ -513,7 +522,71 @@ class TwinEngine {
 
     this.createCampusTag("MAIN GATE & KATTANGAL ENTRANCE", gateX, gateY + 10, gateZ, "#10b981", null, 3.5);
 
-    // 3. Gandhi Circle Roundabout, National Flagpole & Live Civilian GPS Hub
+    // 3. Tathva '26 Technical Expo & Innovation Stalls (Flanking Rajpath Concourse)
+    const tathvaStallsData = {
+      id: "tathva_stalls",
+      name: "Tathva '26 Technical Exhibition Arena & Stalls",
+      category: "Temporary Festival Infrastructure (Tathva '26 Active)",
+      dimensions: "6 Modular Tech Pavilions // Robowar // TatHack // Maker Space",
+      storeys: "Single-Level Modular Expo Canopies (3.8m Height)",
+      height: 3.8,
+      coords: { x: 105, y: this.getTerrainHeight(105, -40), z: -40 },
+      elevationMSL: "+13.5m MSL",
+      slope: "0.8 deg (Paved Concourse)",
+      floodSafety: "SAFE // Elevated Ground (Above Flood Horizon)",
+      description: "Official technical festival arena for Tathva '26 and TatHack '26, featuring Robowar combat cages, AI showcases, and innovation maker stalls."
+    };
+
+    const stallConfigs = [
+      { name: "TATHVA REGISTRATION & INFO", x: 88, z: -28, w: 10, d: 5, mat: stallCanopyMat1 },
+      { name: "ROBOWAR ARENA & DRONE CAGE", x: 88, z: -40, w: 12, d: 6, mat: stallCanopyMat2 },
+      { name: "TATHACK '26 HACKATHON COMMAND", x: 88, z: -52, w: 10, d: 5, mat: stallCanopyMat1 },
+      { name: "AI & SPATIAL ROBOTICS EXPO", x: 122, z: -28, w: 10, d: 5, mat: stallCanopyMat2 },
+      { name: "MAKER SPACE & IOT HARDWARE", x: 122, z: -40, w: 10, d: 5, mat: stallCanopyMat1 },
+      { name: "TATHVA OFFICIAL MERCH & FOOD", x: 122, z: -52, w: 10, d: 5, mat: stallCanopyMat2 }
+    ];
+
+    stallConfigs.forEach(st => {
+      const sty = this.getTerrainHeight(st.x, st.z);
+
+      const plinth = new THREE.Mesh(new THREE.BoxGeometry(st.w, 0.3, st.d), stallCounterMat);
+      plinth.position.set(st.x, sty + 0.15, st.z);
+      this.campusGroup.add(plinth);
+      this.registerLandmarkMesh(plinth, tathvaStallsData);
+
+      [[-st.w/2 + 0.3, -st.d/2 + 0.3], [st.w/2 - 0.3, -st.d/2 + 0.3], [-st.w/2 + 0.3, st.d/2 - 0.3], [st.w/2 - 0.3, st.d/2 - 0.3]].forEach(([px, pz]) => {
+        const post = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 3.4, 8), stallTrussMat);
+        post.position.set(st.x + px, sty + 1.7, st.z + pz);
+        this.campusGroup.add(post);
+      });
+
+      const canopy = new THREE.Mesh(new THREE.BoxGeometry(st.w + 0.6, 0.25, st.d + 0.6), st.mat);
+      canopy.position.set(st.x, sty + 3.4, st.z);
+      canopy.rotation.x = 0.05;
+      this.campusGroup.add(canopy);
+      this.registerLandmarkMesh(canopy, tathvaStallsData);
+
+      const isWest = st.x < 105;
+      const counterZ = st.z;
+      const counterX = isWest ? st.x + st.w/2 - 0.6 : st.x - st.w/2 + 0.6;
+      const counter = new THREE.Mesh(new THREE.BoxGeometry(0.9, 1.1, st.d * 0.8), stallCounterMat);
+      counter.position.set(counterX, sty + 0.55, counterZ);
+      this.campusGroup.add(counter);
+
+      const backX = isWest ? st.x - st.w/2 + 0.3 : st.x + st.w/2 - 0.3;
+      const backWall = new THREE.Mesh(new THREE.BoxGeometry(0.2, 2.4, st.d * 0.9), stallTrussMat);
+      backWall.position.set(backX, sty + 1.4, st.z);
+      this.campusGroup.add(backWall);
+
+      const signX = isWest ? st.x + st.w/2 : st.x - st.w/2;
+      const sign = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.6, st.d * 0.85), stallSignMat);
+      sign.position.set(signX, sty + 3.1, st.z);
+      this.campusGroup.add(sign);
+    });
+
+    this.createCampusTag("TATHVA '26 TECH EXPO & STALLS", 105, this.getTerrainHeight(105, -40) + 10, -40, "#38bdf8", null, 3.5);
+
+    // 4. Gandhi Circle Roundabout & National Tricolour Flagpole
     const circleX = 105;
     const circleZ = -62;
     const circleY = this.getTerrainHeight(circleX, circleZ);
@@ -523,13 +596,13 @@ class TwinEngine {
       name: "Gandhi Circle & National Flagpole",
       category: "Campus Monument / Ceremonial Hub",
       dimensions: "22.0m Diameter Roundabout // 14.0m Mast",
-      storeys: "Monumental Apex (Your Live GPS Location)",
+      storeys: "Monumental Apex // Central Ceremonial Hub",
       height: 14.0,
       coords: { x: circleX, y: circleY, z: circleZ },
       elevationMSL: "+14.8m MSL",
       slope: "0.5 deg (Flat Roundabout)",
       floodSafety: "SAFE // +9.8m above 100-Yr Flood Level",
-      description: "Ceremonial core of NIT Calicut with the national tricolour flagpole. Your Live GPS location."
+      description: "Ceremonial core of NIT Calicut with the national tricolour flagpole, connecting Rajpath with department avenues."
     };
 
     const circleLawn = new THREE.Mesh(new THREE.CylinderGeometry(11, 11, 0.4, 32), lawnMat);
@@ -549,44 +622,82 @@ class TwinEngine {
     this.campusGroup.add(flagMesh);
     this.registerLandmarkMesh(flagMesh, circleLandmark);
 
-    // Dedicated Live GPS Civilian Pin Indicator at Gandhi Circle
-    const gpsDiscGeo = new THREE.CylinderGeometry(1.2, 1.2, 0.2, 24);
+    this.createCampusTag("GANDHI CIRCLE & FLAGPOLE", circleX, circleY + 18, circleZ, "#38bdf8", null, 3.5);
+
+    // 5. IT Laboratory Complex (User's Live GPS Origin - Leftwards of Admin Block)
+    const itX = 58;
+    const itZ = -75;
+    const itY = this.getTerrainHeight(itX, itZ);
+
+    // Save actual user Live GPS origin
+    this.userGpsPosition = new THREE.Vector3(itX, itY + 0.35, -68);
+
+    const itLabLandmark = {
+      id: "it_lab_complex",
+      name: "NIT Calicut - IT Laboratory Complex",
+      category: "Computing & Technology Labs (Your Live GPS Location)",
+      dimensions: "42.0m x 24.0m x 11.5m",
+      storeys: "3 Floors (Software, DSP & TatHack '26)",
+      height: 11.5,
+      coords: { x: itX, y: itY, z: itZ },
+      elevationMSL: "+15.4m MSL",
+      slope: "1.2 deg (Paved IT Apron)",
+      floodSafety: "MAXIMUM SAFETY // +10.4m above 100-Yr Flood Level",
+      description: "Primary computing and software engineering laboratory complex of NIT Calicut, housing TatHack '26 Hackathon, DSP Lab, HPC Cluster, and Network Operations."
+    };
+
+    const itBody = new THREE.Mesh(new THREE.BoxGeometry(42, 11.5, 24), itGlassMat);
+    itBody.position.set(itX, itY + 5.75, itZ);
+    itBody.castShadow = true;
+    itBody.receiveShadow = true;
+    this.campusGroup.add(itBody);
+    this.registerLandmarkMesh(itBody, itLabLandmark);
+
+    const itFrame = new THREE.Mesh(new THREE.BoxGeometry(42.6, 11.7, 24.6), new THREE.MeshBasicMaterial({ color: 0x0f172a, wireframe: true }));
+    itFrame.position.set(itX, itY + 5.75, itZ);
+    this.campusGroup.add(itFrame);
+
+    const itPorch = new THREE.Mesh(new THREE.BoxGeometry(16, 6.0, 6.0), adminMat);
+    itPorch.position.set(itX, itY + 3.0, itZ + 14);
+    this.campusGroup.add(itPorch);
+    this.registerLandmarkMesh(itPorch, itLabLandmark);
+
+    const itRoof = new THREE.Mesh(new THREE.BoxGeometry(43, 0.8, 25), trimMat);
+    itRoof.position.set(itX, itY + 11.9, itZ);
+    this.campusGroup.add(itRoof);
+
+    const itHvac = new THREE.Mesh(new THREE.BoxGeometry(8, 2.5, 5), workshopMat);
+    itHvac.position.set(itX + 8, itY + 13.0, itZ + 4);
+    this.campusGroup.add(itHvac);
+
+    const dishMast = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.3, 4, 8), trimMat);
+    dishMast.position.set(itX - 10, itY + 13.5, itZ - 4);
+    this.campusGroup.add(dishMast);
+
+    const dish = new THREE.Mesh(new THREE.CylinderGeometry(1.6, 0.2, 0.4, 16), pillarMat);
+    dish.rotation.x = Math.PI / 4;
+    dish.position.set(itX - 10, itY + 15.2, itZ - 4);
+    this.campusGroup.add(dish);
+
+    // Live GPS Civilian Pin Indicator directly in front of IT Laboratory Complex
+    const gpsDiscGeo = new THREE.CylinderGeometry(1.4, 1.4, 0.2, 24);
     const gpsDiscMat = new THREE.MeshBasicMaterial({ color: 0x10b981 });
     const gpsDisc = new THREE.Mesh(gpsDiscGeo, gpsDiscMat);
-    gpsDisc.position.set(circleX, circleY + 0.35, circleZ);
+    gpsDisc.position.set(itX, itY + 0.35, -68);
     this.campusGroup.add(gpsDisc);
 
-    const gpsPulseGeo = new THREE.RingGeometry(1.6, 2.8, 32);
+    const gpsPulseGeo = new THREE.RingGeometry(1.8, 3.2, 32);
     gpsPulseGeo.rotateX(-Math.PI / 2);
     const gpsPulseMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, side: THREE.DoubleSide, transparent: true, opacity: 0.85 });
     const gpsPulse = new THREE.Mesh(gpsPulseGeo, gpsPulseMat);
-    gpsPulse.position.set(circleX, circleY + 0.38, circleZ);
+    gpsPulse.position.set(itX, itY + 0.38, -68);
     this.campusGroup.add(gpsPulse);
     this.liveGpsMesh = { dot: gpsDisc, ring: gpsPulse };
 
-    this.createCampusTag("YOU ARE HERE (LIVE GPS)", circleX, circleY + 8.5, circleZ, "#10b981", null, 3.5);
+    this.createCampusTag("YOU ARE HERE (LIVE GPS: IT COMPLEX)", itX, itY + 10, -68, "#10b981", null, 3.5);
+    this.createCampusTag("IT LABORATORY COMPLEX (NITC)", itX, itY + 17, itZ, "#38bdf8", null, 3.5);
 
-    // 3b. Open Administrative Front Lawn & Ceremonial Approach
-    const lawnX = 105;
-    const lawnZ = -74;
-    const lawnY = this.getTerrainHeight(lawnX, lawnZ);
-
-    [-18, 18].forEach(xOffset => {
-      const lawnGeo = new THREE.PlaneGeometry(16, 18);
-      lawnGeo.rotateX(-Math.PI / 2);
-      const lawnMesh = new THREE.Mesh(lawnGeo, lawnMat);
-      lawnMesh.position.set(lawnX + xOffset, lawnY + 0.18, lawnZ);
-      lawnMesh.receiveShadow = true;
-      this.campusGroup.add(lawnMesh);
-
-      const borderGeo = new THREE.BoxGeometry(16.2, 0.25, 0.35);
-      const borderMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0 });
-      const borderMesh = new THREE.Mesh(borderGeo, borderMat);
-      borderMesh.position.set(lawnX + xOffset, lawnY + 0.25, lawnZ + 9);
-      this.campusGroup.add(borderMesh);
-    });
-
-    // 4. Main Administrative Block (Authentic 3-Storey Height: 12.0m)
+    // 6. Central Administrative Block (Core of NIT Calicut)
     const adminX = 105;
     const adminZ = -88;
     const adminY = this.getTerrainHeight(adminX, adminZ);
@@ -605,7 +716,6 @@ class TwinEngine {
       description: "Director's Secretariat, Registrar Office, Senate Hall, and Central Academic Administration."
     };
 
-    // Main 3-story Building (60m wide x 12m high x 22m deep)
     const adminBody = new THREE.Mesh(new THREE.BoxGeometry(60, 12, 22), adminMat);
     adminBody.position.set(adminX, adminY + 6, adminZ);
     adminBody.castShadow = true;
@@ -618,21 +728,12 @@ class TwinEngine {
     this.campusGroup.add(adminRoof);
     this.registerLandmarkMesh(adminRoof, adminLandmark);
 
-    // Front Window Strips
-    [-2, 2].forEach(yOff => {
-      const win = new THREE.Mesh(new THREE.BoxGeometry(54, 2.0, 0.4), glassCyanMat);
-      win.position.set(adminX, adminY + 6 + yOff, adminZ + 11.2);
-      this.campusGroup.add(win);
-    });
-
-    // Central Grand Portico
     const porticoZ = adminZ + 12;
     const porticoBody = new THREE.Mesh(new THREE.BoxGeometry(20, 13.5, 10), adminMat);
     porticoBody.position.set(adminX, adminY + 6.75, porticoZ);
     this.campusGroup.add(porticoBody);
     this.registerLandmarkMesh(porticoBody, adminLandmark);
 
-    // 4 Grand Pillars
     [-7, -2.5, 2.5, 7].forEach(colX => {
       const col = new THREE.Mesh(new THREE.CylinderGeometry(0.75, 0.75, 12, 16), pillarMat);
       col.position.set(adminX + colX, adminY + 6, porticoZ + 5.2);
@@ -640,7 +741,6 @@ class TwinEngine {
       this.registerLandmarkMesh(col, adminLandmark);
     });
 
-    // Clock & Administrative Crest Tower
     const towerBody = new THREE.Mesh(new THREE.BoxGeometry(7, 4.5, 7), adminMat);
     towerBody.position.set(adminX, adminY + 14.5, porticoZ);
     this.campusGroup.add(towerBody);
@@ -653,8 +753,8 @@ class TwinEngine {
 
     this.createCampusTag("NIT CALICUT - ADMIN BLOCK", adminX, adminY + 20, adminZ, "#38bdf8", null, 3.5);
 
-    // 5. Central Computer Centre (CCC) (Authentic 2-Storey Height: 8.5m)
-    const cccX = 75;
+    // 7. Central Computer Centre (CCC)
+    const cccX = 82;
     const cccZ = -70;
     const cccY = this.getTerrainHeight(cccX, cccZ);
 
@@ -662,7 +762,7 @@ class TwinEngine {
       id: "ccc",
       name: "Central Computer Centre (CCC)",
       category: "IT Infrastructure & Computing Hub",
-      dimensions: "34.0m x 26.0m x 8.5m",
+      dimensions: "28.0m x 20.0m x 8.5m",
       storeys: "2 Floors (High-Density Server Facility)",
       height: 8.5,
       coords: { x: cccX, y: cccY, z: cccZ },
@@ -672,23 +772,15 @@ class TwinEngine {
       description: "Central computing facility, optical fiber campus backbone NOC, HPC cluster, and student labs."
     };
 
-    const cccBody = new THREE.Mesh(new THREE.BoxGeometry(34, 8.5, 26), cccGlassMat);
+    const cccBody = new THREE.Mesh(new THREE.BoxGeometry(28, 8.5, 20), cccGlassMat);
     cccBody.position.set(cccX, cccY + 4.25, cccZ);
     cccBody.castShadow = true;
     this.campusGroup.add(cccBody);
     this.registerLandmarkMesh(cccBody, cccLandmark);
 
-    const cccFrame = new THREE.Mesh(new THREE.BoxGeometry(34.6, 8.7, 26.6), new THREE.MeshBasicMaterial({ color: 0x0f172a, wireframe: true }));
-    cccFrame.position.set(cccX, cccY + 4.25, cccZ);
-    this.campusGroup.add(cccFrame);
-
-    const hvac = new THREE.Mesh(new THREE.BoxGeometry(6, 2, 4), workshopMat);
-    hvac.position.set(cccX + 6, cccY + 9.5, cccZ + 4);
-    this.campusGroup.add(hvac);
-
     this.createCampusTag("CENTRAL COMPUTER CENTRE (CCC)", cccX, cccY + 13, cccZ, "#38bdf8", null, 3.5);
 
-    // 6. Central Library (Academic East Wing) (Authentic 2-Storey Height: 9.0m)
+    // 8. Central Library (Academic East Wing)
     const libX = 142;
     const libZ = -58;
     const libY = this.getTerrainHeight(libX, libZ);
@@ -714,24 +806,14 @@ class TwinEngine {
     this.campusGroup.add(libBody);
     this.registerLandmarkMesh(libBody, libLandmark);
 
-    [-1.8, 1.8].forEach(yOff => {
-      const libWin = new THREE.Mesh(new THREE.BoxGeometry(34, 1.8, 0.4), glassCyanMat);
-      libWin.position.set(libX, libY + 4.5 + yOff, libZ + 13.2);
-      this.campusGroup.add(libWin);
-    });
-
     const libPorch = new THREE.Mesh(new THREE.BoxGeometry(14, 7.5, 8), adminMat);
     libPorch.position.set(libX - 10, libY + 3.75, libZ + 14);
     this.campusGroup.add(libPorch);
     this.registerLandmarkMesh(libPorch, libLandmark);
 
-    const libRoof = new THREE.Mesh(new THREE.BoxGeometry(39, 0.9, 27), trimMat);
-    libRoof.position.set(libX, libY + 9.45, libZ);
-    this.campusGroup.add(libRoof);
-
     this.createCampusTag("CENTRAL LIBRARY (ACADEMIC EAST)", libX, libY + 13.5, libZ, "#38bdf8", null, 3.5);
 
-    // 7. North Academic Quadrangle (CSED, ECED, MED Workshops, Civil, Arch)
+    // 9. Engineering Quadrangle (CSED, Workshops, Civil, DAP)
     const cseX = 140;
     const cseZ = -88;
     const cseY = this.getTerrainHeight(cseX, cseZ);
@@ -756,13 +838,6 @@ class TwinEngine {
     this.campusGroup.add(cseWing);
     this.registerLandmarkMesh(cseWing, cseLandmark);
 
-    [-2, 2].forEach(yOff => {
-      const win = new THREE.Mesh(new THREE.BoxGeometry(42, 1.8, 0.4), glassCyanMat);
-      win.position.set(cseX, cseY + 5.25 + yOff, cseZ + 11.2);
-      this.campusGroup.add(win);
-    });
-
-    // Mechanical Labs & Central Workshops
     const mechX = 125;
     const mechZ = -128;
     const mechY = this.getTerrainHeight(mechX, mechZ);
@@ -787,7 +862,6 @@ class TwinEngine {
     this.campusGroup.add(mechBlock);
     this.registerLandmarkMesh(mechBlock, mechLandmark);
 
-    // Civil Engineering Complex
     const civX = 155;
     const civZ = -128;
     const civY = this.getTerrainHeight(civX, civZ);
@@ -812,7 +886,6 @@ class TwinEngine {
     this.campusGroup.add(civBlock);
     this.registerLandmarkMesh(civBlock, civLandmark);
 
-    // Architecture Department (DAP)
     const dapX = 138;
     const dapZ = -155;
     const dapY = this.getTerrainHeight(dapX, dapZ);
@@ -838,7 +911,225 @@ class TwinEngine {
 
     this.createCampusTag("ENGINEERING DEPARTMENTS (CSE/ECE/MECH/CIVIL)", 140, this.getTerrainHeight(140, -110) + 16, -110, "#38bdf8", null, 4.0);
 
-    // 8. East Ridge Mega Hostels & Safe Refuge Haven (+48.5m MSL) (Authentic 4-Storey Height: 16.0m)
+    // 10. Extended North Campus & Rear Sector (Filling the empty backside)
+    const nlhcX = 95;
+    const nlhcZ = -165;
+    const nlhcY = this.getTerrainHeight(nlhcX, nlhcZ);
+
+    const nlhcLandmark = {
+      id: "nlhc",
+      name: "New Lecture Hall Complex (NLHC)",
+      category: "Academic Lecture Theatres",
+      dimensions: "48.0m x 30.0m x 11.0m",
+      storeys: "3 Floors (Tiered Smart Classrooms)",
+      height: 11.0,
+      coords: { x: nlhcX, y: nlhcY, z: nlhcZ },
+      elevationMSL: "+18.2m MSL",
+      slope: "2.1 deg (Level Terrace)",
+      floodSafety: "SAFE // +13.2m above 100-Yr Flood Level",
+      description: "Modern lecture hall complex equipped with smart multimedia amphitheatres and examination centres."
+    };
+
+    const nlhcBlock = new THREE.Mesh(new THREE.BoxGeometry(48, 11.0, 30), academicMat);
+    nlhcBlock.position.set(nlhcX, nlhcY + 5.5, nlhcZ);
+    nlhcBlock.castShadow = true;
+    this.campusGroup.add(nlhcBlock);
+    this.registerLandmarkMesh(nlhcBlock, nlhcLandmark);
+    this.createCampusTag("NEW LECTURE HALL COMPLEX (NLHC)", nlhcX, nlhcY + 16, nlhcZ, "#38bdf8", null, 3.5);
+
+    const elhcX = 175;
+    const elhcZ = -135;
+    const elhcY = this.getTerrainHeight(elhcX, elhcZ);
+
+    const elhcLandmark = {
+      id: "elhc",
+      name: "East Lecture Hall Complex (ELHC)",
+      category: "Academic Lecture Theatres",
+      dimensions: "42.0m x 24.0m x 10.0m",
+      storeys: "3 Floors (Auditorium & Classrooms)",
+      height: 10.0,
+      coords: { x: elhcX, y: elhcY, z: elhcZ },
+      elevationMSL: "+22.4m MSL",
+      slope: "4.5 deg (Hillside Incline)",
+      floodSafety: "SAFE // +17.4m above 100-Yr Flood Level",
+      description: "High-capacity tiered lecture halls serving the eastern academic cluster."
+    };
+
+    const elhcBlock = new THREE.Mesh(new THREE.BoxGeometry(42, 10.0, 24), academicMat);
+    elhcBlock.position.set(elhcX, elhcY + 5.0, elhcZ);
+    elhcBlock.castShadow = true;
+    this.campusGroup.add(elhcBlock);
+    this.registerLandmarkMesh(elhcBlock, elhcLandmark);
+    this.createCampusTag("EAST LECTURE HALL COMPLEX (ELHC)", elhcX, elhcY + 15, elhcZ, "#38bdf8", null, 3.5);
+
+    const chemX = 95;
+    const chemZ = -200;
+    const chemY = this.getTerrainHeight(chemX, chemZ);
+
+    const chemLandmark = {
+      id: "chem_biotech",
+      name: "Chemical Engineering & Biotechnology Block",
+      category: "Specialized Engineering Labs",
+      dimensions: "48.0m x 26.0m x 10.0m",
+      storeys: "3 Floors (Bioprocess & Reaction Labs)",
+      height: 10.0,
+      coords: { x: chemX, y: chemY, z: chemZ },
+      elevationMSL: "+19.0m MSL",
+      slope: "2.4 deg (Graded)",
+      floodSafety: "SAFE // +14.0m above 100-Yr Flood Level",
+      description: "Houses bioprocess research labs, chemical engineering separation technology, and environmental biotechnology."
+    };
+
+    const chemBlock = new THREE.Mesh(new THREE.BoxGeometry(48, 10.0, 26), workshopMat);
+    chemBlock.position.set(chemX, chemY + 5.0, chemZ);
+    chemBlock.castShadow = true;
+    this.campusGroup.add(chemBlock);
+    this.registerLandmarkMesh(chemBlock, chemLandmark);
+    this.createCampusTag("CHEMICAL & BIOTECHNOLOGY BLOCK", chemX, chemY + 15, chemZ, "#38bdf8", null, 3.5);
+
+    const physX = 135;
+    const physZ = -200;
+    const physY = this.getTerrainHeight(physX, physZ);
+
+    const physLandmark = {
+      id: "phys_math",
+      name: "Physical Sciences & Mathematics Complex",
+      category: "Fundamental Science & Research Labs",
+      dimensions: "46.0m x 24.0m x 10.0m",
+      storeys: "3 Floors (Physics, Chemistry & Math)",
+      height: 10.0,
+      coords: { x: physX, y: physY, z: physZ },
+      elevationMSL: "+21.0m MSL",
+      slope: "3.2 deg (Graded)",
+      floodSafety: "SAFE // +16.0m above 100-Yr Flood Level",
+      description: "Departments of Physics, Chemistry, and Mathematics, housing optics labs, spectroscopy, and materials research."
+    };
+
+    const physBlock = new THREE.Mesh(new THREE.BoxGeometry(46, 10.0, 24), academicMat);
+    physBlock.position.set(physX, physY + 5.0, physZ);
+    physBlock.castShadow = true;
+    this.campusGroup.add(physBlock);
+    this.registerLandmarkMesh(physBlock, physLandmark);
+    this.createCampusTag("PHYSICAL SCIENCES & MATHEMATICS", physX, physY + 15, physZ, "#38bdf8", null, 3.5);
+
+    const somsX = 175;
+    const somsZ = -200;
+    const somsY = this.getTerrainHeight(somsX, somsZ);
+
+    const somsLandmark = {
+      id: "soms",
+      name: "School of Management Studies (SOMS)",
+      category: "Management & Humanities Centre",
+      dimensions: "40.0m x 22.0m x 9.0m",
+      storeys: "2 Floors (MBA Classrooms & Seminar Halls)",
+      height: 9.0,
+      coords: { x: somsX, y: somsY, z: somsZ },
+      elevationMSL: "+23.5m MSL",
+      slope: "4.8 deg (Hillside)",
+      floodSafety: "SAFE // +18.5m above 100-Yr Flood Level",
+      description: "NIT Calicut School of Management Studies offering MBA, executive development, and humanities research."
+    };
+
+    const somsBlock = new THREE.Mesh(new THREE.BoxGeometry(40, 9.0, 22), academicMat);
+    somsBlock.position.set(somsX, somsY + 4.5, somsZ);
+    somsBlock.castShadow = true;
+    this.campusGroup.add(somsBlock);
+    this.registerLandmarkMesh(somsBlock, somsLandmark);
+    this.createCampusTag("SCHOOL OF MANAGEMENT (SOMS)", somsX, somsY + 14, somsZ, "#38bdf8", null, 3.5);
+
+    const canX = 78;
+    const canZ = -110;
+    const canY = this.getTerrainHeight(canX, canZ);
+
+    const canLandmark = {
+      id: "canteen",
+      name: "Central Campus Canteen & Food Court",
+      category: "Student Amenities & Dining",
+      dimensions: "32.0m x 18.0m x 5.5m",
+      storeys: "1 Floor (Spacious Dining Hall & Outdoor Patio)",
+      height: 5.5,
+      coords: { x: canX, y: canY, z: canZ },
+      elevationMSL: "+15.6m MSL",
+      slope: "1.4 deg (Level Apron)",
+      floodSafety: "SAFE // +10.6m above 100-Yr Flood Level",
+      description: "Primary student and faculty dining complex with multi-cuisine food counters and outdoor shaded patio."
+    };
+
+    const canBlock = new THREE.Mesh(new THREE.BoxGeometry(32, 5.5, 18), houseWallMat);
+    canBlock.position.set(canX, canY + 2.75, canZ);
+    canBlock.castShadow = true;
+    this.campusGroup.add(canBlock);
+    this.registerLandmarkMesh(canBlock, canLandmark);
+    this.createCampusTag("CENTRAL CANTEEN & FOOD COURT", canX, canY + 9, canZ, "#38bdf8", null, 3.5);
+
+    const sacX = 48;
+    const sacZ = -140;
+    const sacY = this.getTerrainHeight(sacX, sacZ);
+
+    const sacLandmark = {
+      id: "sac",
+      name: "Student Activity Centre (SAC)",
+      category: "Clubs, Cultural Hub & Indoor Sports",
+      dimensions: "36.0m x 22.0m x 8.5m",
+      storeys: "2 Floors (Auditorium & Club Hubs)",
+      height: 8.5,
+      coords: { x: sacX, y: sacY, z: sacZ },
+      elevationMSL: "+15.0m MSL",
+      slope: "1.0 deg (Level Ground)",
+      floodSafety: "SAFE // +10.0m above 100-Yr Flood Level",
+      description: "Headquarters of student technical and cultural clubs, SAC indoor badminton arena, and music rooms."
+    };
+
+    const sacBlock = new THREE.Mesh(new THREE.BoxGeometry(36, 8.5, 22), trimMat);
+    sacBlock.position.set(sacX, sacY + 4.25, sacZ);
+    sacBlock.castShadow = true;
+    this.campusGroup.add(sacBlock);
+    this.registerLandmarkMesh(sacBlock, sacLandmark);
+    this.createCampusTag("STUDENT ACTIVITY CENTRE (SAC)", sacX, sacY + 13, sacZ, "#38bdf8", null, 3.5);
+
+    // Additional Student Residential Hostels
+    const hostelClusterData = [
+      { name: "HOSTEL A & B (JUNIOR MEN)", x: 205, z: -110, w: 32, d: 22, h: 12 },
+      { name: "HOSTEL C & D (SENIOR MEN)", x: 205, z: -145, w: 32, d: 22, h: 12 },
+      { name: "PG & RESEARCH SCHOLARS HOSTEL", x: 205, z: -180, w: 36, d: 24, h: 12 },
+      { name: "LADIES HOSTEL (LH COMPLEX)", x: 45, z: -180, w: 38, d: 26, h: 12 }
+    ];
+
+    hostelClusterData.forEach(hc => {
+      const hy = this.getTerrainHeight(hc.x, hc.z);
+      const hMesh = new THREE.Mesh(new THREE.BoxGeometry(hc.w, hc.h, hc.d), hostelMat);
+      hMesh.position.set(hc.x, hy + hc.h / 2, hc.z);
+      hMesh.castShadow = true;
+      this.campusGroup.add(hMesh);
+
+      const hLandmark = {
+        id: "hostel_" + hc.x,
+        name: hc.name,
+        category: "Student Residential Housing",
+        dimensions: `${hc.w}.0m x ${hc.d}.0m x ${hc.h}.0m`,
+        storeys: "4 Floors (Residential Rooms & Mess)",
+        height: hc.h,
+        coords: { x: hc.x, y: hy, z: hc.z },
+        elevationMSL: `+${(hy + 12).toFixed(1)}m MSL`,
+        slope: "3.5 deg (Elevated Ridge)",
+        floodSafety: "MAXIMUM SAFETY // Well Above Flood Horizon",
+        description: `Campus residential complex accommodating undergraduate, postgraduate, and doctoral students of NIT Calicut.`
+      };
+      this.registerLandmarkMesh(hMesh, hLandmark);
+    });
+
+    // Faculty Quarters
+    [
+      { x: 24, z: -85 }, { x: 24, z: -115 }, { x: 24, z: -145 }
+    ].forEach((fq) => {
+      const fy = this.getTerrainHeight(fq.x, fq.z);
+      const qMesh = new THREE.Mesh(new THREE.BoxGeometry(16, 6.5, 12), houseWallMat);
+      qMesh.position.set(fq.x, fy + 3.25, fq.z);
+      qMesh.castShadow = true;
+      this.campusGroup.add(qMesh);
+    });
+
+    // 11. East Ridge Mega Hostels & Safe Refuge Haven (+48.5m MSL)
     const host1X = 172;
     const host1Z = -62;
     const host1Y = this.getTerrainHeight(host1X, host1Z);
@@ -878,16 +1169,15 @@ class TwinEngine {
     this.campusGroup.add(hostQuad);
     this.registerLandmarkMesh(hostQuad, hostelLandmark);
 
-    // Emergency Refuge Beacon on the ridge
     const refugeBeacon = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.8, 18, 16), new THREE.MeshBasicMaterial({ color: 0x10b981, transparent: true, opacity: 0.65 }));
     refugeBeacon.position.set(172, Math.max(host1Y, host2Y) + 12, -80);
     this.campusGroup.add(refugeBeacon);
 
     this.createCampusTag("MEGA HOSTELS & SAFE HAVEN (+48.5m MSL)", 172, Math.max(host1Y, host2Y) + 26, -80, "#10b981", null, 4.5);
 
-    // 9. Main Athletic Ground, Spectator Pavilion & Open Air Theatre (OAT)
+    // 12. Main Athletic Ground, Spectator Pavilion & Open Air Theatre (OAT)
     const groundX = 75;
-    const groundZ = -130;
+    const groundZ = -145;
     const groundY = this.getTerrainHeight(groundX, groundZ);
 
     const groundLandmark = {
@@ -924,8 +1214,8 @@ class TwinEngine {
     this.registerLandmarkMesh(pavMesh, groundLandmark);
 
     // Open Air Theatre (OAT)
-    const oatX = 60;
-    const oatZ = -95;
+    const oatX = 55;
+    const oatZ = -105;
     const oatY = this.getTerrainHeight(oatX, oatZ);
 
     const oatLandmark = {
@@ -958,7 +1248,7 @@ class TwinEngine {
 
     this.createCampusTag("MAIN ATHLETIC GROUND & OAT", groundX, groundY + 12, groundZ, "#38bdf8", null, 3.5);
 
-    // 10. Kattangal Junction Mukkam Highway (SH 34)
+    // 13. Kattangal Junction Mukkam Highway (SH 34)
     const highwayGeo = new THREE.PlaneGeometry(240, 14);
     highwayGeo.rotateX(-Math.PI / 2);
     const highwayRoad = new THREE.Mesh(highwayGeo, asphaltMat);
@@ -972,7 +1262,6 @@ class TwinEngine {
     hwLine.position.set(105, this.getTerrainHeight(105, -10) + 0.18, -10);
     this.campusGroup.add(hwLine);
 
-    // Clean formal transit shelters along highway
     const busShelter = new THREE.Mesh(new THREE.BoxGeometry(8, 3.2, 4), trimMat);
     busShelter.position.set(125, this.getTerrainHeight(125, -4) + 1.6, -4);
     this.campusGroup.add(busShelter);
@@ -981,12 +1270,14 @@ class TwinEngine {
     autoStand.position.set(85, this.getTerrainHeight(85, -4) + 1.6, -4);
     this.campusGroup.add(autoStand);
 
-    // 11. Avenue Trees symmetrically lining Rajpath Avenue & Perimeter
+    // 14. Avenue Trees symmetrically lining Rajpath Avenue, Perimeter & Campus Core
     const treeCoords = [
       { x: 96, z: -22 }, { x: 96, z: -32 }, { x: 96, z: -42 }, { x: 96, z: -52 },
       { x: 114, z: -22 }, { x: 114, z: -32 }, { x: 114, z: -42 }, { x: 114, z: -52 },
       { x: 85, z: -55 }, { x: 125, z: -55 }, { x: 75, z: -85 }, { x: 135, z: -85 },
-      { x: 60, z: -110 }, { x: 155, z: -115 }, { x: 50, z: -130 }, { x: 160, z: -70 }
+      { x: 60, z: -110 }, { x: 155, z: -115 }, { x: 50, z: -130 }, { x: 160, z: -70 },
+      { x: 45, z: -70 }, { x: 45, z: -85 }, { x: 75, z: -165 }, { x: 115, z: -165 },
+      { x: 75, z: -200 }, { x: 115, z: -200 }, { x: 155, z: -200 }
     ];
 
     treeCoords.forEach(t => {
@@ -1019,81 +1310,123 @@ class TwinEngine {
       return false;
     }
 
-    // 1. Catmull-Rom Spline Curve from Flooded Terrain to East Ridge Safe Haven
-    const waypoints = [
-      new THREE.Vector3(45, 1.2, -10),   // Flooded low-lying Mukkam Highway section (Origin)
-      new THREE.Vector3(75, 2.5, -12),   // Approaching Kattangal Bazaar
-      new THREE.Vector3(105, 4.2, -18),  // Safe entry through Main Gate
-      new THREE.Vector3(105, 8.5, -40),  // Straight along Central Rajpath Avenue
-      new THREE.Vector3(105, 14.8, -62), // Gandhi Circle Roundabout
-      new THREE.Vector3(138, 19.2, -62), // East Ridge ascending road
-      new THREE.Vector3(172, 24.5, -82)  // Mega Hostels Safe Haven Plateau (+48.5m MSL)
+    // 1. Paved Road Waypoints: Starts directly at User Live GPS Origin (IT Laboratory Complex Entrance)
+    // Strictly following paved campus road avenues and hugging terrain elevation (never through air or buildings!)
+    const keyRoadNodes = [
+      { x: 58, z: -68 },  // Origin: IT Laboratory Complex Entrance Plaza
+      { x: 58, z: -62 },  // Step 1: Connecting onto West Link Avenue
+      { x: 70, z: -62 },  // Step 2: West Link Avenue passing Central Computer Centre
+      { x: 85, z: -62 },  // Step 3: Approaching Gandhi Circle Roundabout
+      { x: 96, z: -62 },  // Step 4: Roundabout West Entrance
+      { x: 105, z: -62 }, // Step 5: Central Gandhi Circle Roundabout Junction
+      { x: 118, z: -62 }, // Step 6: East Academic Avenue toward Central Library
+      { x: 132, z: -62 }, // Step 7: Passing North of Central Library
+      { x: 145, z: -62 }, // Step 8: East Ridge Road Incline Foot
+      { x: 155, z: -68 }, // Step 9: Ridge Road Ascent Curve (safely avoiding Library & Departments)
+      { x: 164, z: -74 }, // Step 10: Ascending the Elevated Granite Ridge
+      { x: 172, z: -80 }  // Step 11: Destination Safe Haven Plateau (+48.5m MSL Mega Hostels)
     ];
 
-    const curve = new THREE.CatmullRomCurve3(waypoints);
+    // Subdivide segments into dense terrain-conforming points sampled every 1.5 meters
+    const terrainPoints = [];
+    for (let i = 0; i < keyRoadNodes.length - 1; i++) {
+      const p1 = keyRoadNodes[i];
+      const p2 = keyRoadNodes[i + 1];
+      const dist = Math.hypot(p2.x - p1.x, p2.z - p1.z);
+      const steps = Math.max(3, Math.ceil(dist / 1.5));
 
-    // Glowing Green Evacuation Tube Mesh
-    const tubeGeo = new THREE.TubeGeometry(curve, 64, 0.75, 8, false);
+      for (let s = 0; s < steps; s++) {
+        const t = s / steps;
+        const curX = p1.x + (p2.x - p1.x) * t;
+        const curZ = p1.z + (p2.z - p1.z) * t;
+        // Physically snap height directly onto road surface (+0.38m above ground)
+        const curY = this.getTerrainHeight(curX, curZ) + 0.38;
+        terrainPoints.push(new THREE.Vector3(curX, curY, curZ));
+      }
+    }
+    const lastNode = keyRoadNodes[keyRoadNodes.length - 1];
+    terrainPoints.push(new THREE.Vector3(lastNode.x, this.getTerrainHeight(lastNode.x, lastNode.z) + 0.38, lastNode.z));
+
+    // 2. Continuous Glowing Tactical Road Surface Lane (Hugging Paved Asphalt)
+    const curve = new THREE.CatmullRomCurve3(terrainPoints);
+    const tubeGeo = new THREE.TubeGeometry(curve, terrainPoints.length * 2, 0.35, 8, false);
     const tubeMat = new THREE.MeshStandardMaterial({
       color: 0x10b981,
       emissive: 0x10b981,
       emissiveIntensity: 0.95,
       roughness: 0.2,
       transparent: true,
-      opacity: 0.88
+      opacity: 0.92
     });
     this.evacTubeMesh = new THREE.Mesh(tubeGeo, tubeMat);
     this.evacuationGroup.add(this.evacTubeMesh);
 
-    // 2. Pulsing Waypoint Rings & Pillars at Nodes
-    waypoints.forEach((wp, idx) => {
-      const isDestination = idx === waypoints.length - 1;
-      const isOrigin = idx === 0;
+    // 3. Directional Tactical Chevron Sprites along the Road Surface pointing toward safety
+    const chevronCanvas = document.createElement('canvas');
+    chevronCanvas.width = 64;
+    chevronCanvas.height = 64;
+    const chCtx = chevronCanvas.getContext('2d');
+    chCtx.fillStyle = '#10b981';
+    chCtx.beginPath();
+    chCtx.moveTo(32, 10);
+    chCtx.lineTo(54, 42);
+    chCtx.lineTo(44, 42);
+    chCtx.lineTo(32, 24);
+    chCtx.lineTo(20, 42);
+    chCtx.lineTo(10, 42);
+    chCtx.closePath();
+    chCtx.fill();
+    const chevronTex = new THREE.CanvasTexture(chevronCanvas);
 
-      const ringColor = isDestination ? 0x10b981 : (isOrigin ? 0xef4444 : 0x38bdf8);
+    for (let i = 4; i < terrainPoints.length - 4; i += 7) {
+      const pt = terrainPoints[i];
+      const nextPt = terrainPoints[i + 1];
+      const chMesh = new THREE.Mesh(
+        new THREE.PlaneGeometry(1.4, 1.4),
+        new THREE.MeshBasicMaterial({ map: chevronTex, transparent: true, opacity: 0.85, side: THREE.DoubleSide })
+      );
+      chMesh.rotateX(-Math.PI / 2);
+      const angle = Math.atan2(nextPt.x - pt.x, nextPt.z - pt.z);
+      chMesh.rotation.z = -angle;
+      chMesh.position.set(pt.x, pt.y + 0.05, pt.z);
+      this.evacuationGroup.add(chMesh);
+    }
 
-      // Ground beacon ring
-      const ringGeo = new THREE.RingGeometry(1.2, 2.5, 24);
+    // 4. Ground Navigation Guidance Rings & Badges at Key Tactical Checkpoints
+    const checkpoints = [
+      { node: keyRoadNodes[0], label: "EVACUATION ORIGIN // IT LAB COMPLEX", isOrigin: true },
+      { node: keyRoadNodes[5], label: "MIDWAY JUNCTION // GANDHI CIRCLE", isTransit: true },
+      { node: keyRoadNodes[8], label: "ASCENDING SAFE RIDGE (+48.5m MSL)", isTransit: true },
+      { node: keyRoadNodes[keyRoadNodes.length - 1], label: "DESTINATION // SAFE REFUGE HAVEN", isHaven: true }
+    ];
+
+    checkpoints.forEach((cp) => {
+      const cy = this.getTerrainHeight(cp.node.x, cp.node.z);
+      const color = cp.isHaven ? 0x10b981 : (cp.isOrigin ? 0xef4444 : 0x38bdf8);
+
+      const ringGeo = new THREE.RingGeometry(1.5, 2.8, 32);
       ringGeo.rotateX(-Math.PI / 2);
-      const ringMat = new THREE.MeshBasicMaterial({
-        color: ringColor,
-        side: THREE.DoubleSide,
-        transparent: true,
-        opacity: 0.85
-      });
-      const ringMesh = new THREE.Mesh(ringGeo, ringMat);
-      ringMesh.position.set(wp.x, wp.y + 0.1, wp.z);
+      const ringMesh = new THREE.Mesh(ringGeo, new THREE.MeshBasicMaterial({ color: color, side: THREE.DoubleSide, transparent: true, opacity: 0.85 }));
+      ringMesh.position.set(cp.node.x, cy + 0.15, cp.node.z);
       this.evacuationGroup.add(ringMesh);
 
-      // Vertical guide pillar
-      const beamHeight = isDestination ? 24 : 8;
-      const beamGeo = new THREE.CylinderGeometry(0.2, 0.4, beamHeight, 12);
-      const beamMat = new THREE.MeshBasicMaterial({
-        color: ringColor,
-        transparent: true,
-        opacity: 0.45
-      });
-      const beamMesh = new THREE.Mesh(beamGeo, beamMat);
-      beamMesh.position.set(wp.x, wp.y + beamHeight / 2, wp.z);
+      const beamHeight = cp.isHaven ? 26 : 9;
+      const beamGeo = new THREE.CylinderGeometry(0.18, 0.35, beamHeight, 12);
+      const beamMesh = new THREE.Mesh(beamGeo, new THREE.MeshBasicMaterial({ color: color, transparent: true, opacity: 0.5 }));
+      beamMesh.position.set(cp.node.x, cy + beamHeight / 2, cp.node.z);
       this.evacuationGroup.add(beamMesh);
 
-      if (isDestination) {
-        // Destination haven diamond
-        const diaGeo = new THREE.OctahedronGeometry(2.2, 0);
-        const diaMat = new THREE.MeshStandardMaterial({
-          color: 0x10b981,
-          emissive: 0x10b981,
-          emissiveIntensity: 1.2
-        });
-        const diamond = new THREE.Mesh(diaGeo, diaMat);
-        diamond.position.set(wp.x, wp.y + beamHeight + 2, wp.z);
+      if (cp.isHaven) {
+        const diaGeo = new THREE.OctahedronGeometry(2.4, 0);
+        const diamond = new THREE.Mesh(diaGeo, new THREE.MeshStandardMaterial({ color: 0x10b981, emissive: 0x10b981, emissiveIntensity: 1.2 }));
+        diamond.position.set(cp.node.x, cy + beamHeight + 2, cp.node.z);
         this.evacuationGroup.add(diamond);
-
-        this.createCampusTag("SAFE REFUGE HAVEN (+48.5m MSL)", wp.x, wp.y + beamHeight + 7, wp.z, "#10b981", this.evacuationGroup, 5.0);
       }
+
+      this.createCampusTag(cp.label, cp.node.x, cy + beamHeight + 5, cp.node.z, cp.isHaven ? "#10b981" : "#38bdf8", this.evacuationGroup, 4.0);
     });
 
-    // 3. Submerged Road Barricades (Closing Flooded Routes)
+    // 5. Submerged Lowland Road Closures (Barricading flood danger routes)
     const barricades = [
       { x: 35, y: 0.8, z: -10, rot: 0 },
       { x: 25, y: 0.6, z: -35, rot: -0.4 }
@@ -1104,36 +1437,26 @@ class TwinEngine {
       bGroup.position.set(b.x, b.y, b.z);
       bGroup.rotation.y = b.rot;
 
-      // Barrier Beam (Red & White hazard)
       const beamGeo = new THREE.BoxGeometry(9, 1.2, 0.4);
-      const beamMat = new THREE.MeshStandardMaterial({ color: 0xef4444, emissive: 0xb91c1c, emissiveIntensity: 0.5 });
-      const barMesh = new THREE.Mesh(beamGeo, beamMat);
+      const barMesh = new THREE.Mesh(beamGeo, new THREE.MeshStandardMaterial({ color: 0xef4444, emissive: 0xb91c1c, emissiveIntensity: 0.5 }));
       barMesh.position.y = 1.2;
       bGroup.add(barMesh);
 
-      // 2 Stanchions
       [-3.8, 3.8].forEach(sx => {
         const post = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 2.2, 8), new THREE.MeshStandardMaterial({ color: 0x0f172a }));
         post.position.set(sx, 1.1, 0);
         bGroup.add(post);
       });
 
-      // Warning Strobe on top
-      const strobe = new THREE.Mesh(new THREE.SphereGeometry(0.45, 12, 12), new THREE.MeshBasicMaterial({ color: 0xef4444 }));
-      strobe.position.set(0, 2.1, 0);
-      bGroup.add(strobe);
-
       this.evacuationGroup.add(bGroup);
-
       this.createCampusTag("ROAD CLOSED: INUNDATION HAZARD", b.x, b.y + 4.5, b.z, "#ef4444", this.evacuationGroup, 3.5);
     });
 
-    // Fly camera smoothly to reveal the evacuation path towards NIT Calicut
-    this.smoothCameraTransition(new THREE.Vector3(160, 65, -30), new THREE.Vector3(105, 15, -70), 1400);
+    // Camera smoothly frames the full escape corridor from IT Lab Complex to Mega Hostels
+    this.smoothCameraTransition(new THREE.Vector3(125, 55, -20), new THREE.Vector3(115, 18, -72), 1400);
 
     return true;
   }
-
 
   renderIncidentBeacons() {
     // Clear existing beacons
@@ -1323,13 +1646,13 @@ class TwinEngine {
       this.landmarkMeasurementGroup.remove(this.landmarkMeasurementGroup.children[0]);
     }
 
-    const gpsOrigin = new THREE.Vector3(105, 12.5, -62);
+    const gpsOrigin = this.userGpsPosition ? this.userGpsPosition.clone() : new THREE.Vector3(58, 14.5, -68);
     const targetApex = new THREE.Vector3(landmark.coords.x, landmark.coords.y + landmark.height / 2, landmark.coords.z);
 
     // Calculate metrics
-    const dx = landmark.coords.x - 105;
-    const dz = landmark.coords.z - (-62);
-    const dy = landmark.coords.y - 12.5;
+    const dx = landmark.coords.x - gpsOrigin.x;
+    const dz = landmark.coords.z - gpsOrigin.z;
+    const dy = landmark.coords.y - gpsOrigin.y;
     const horizDist = Math.sqrt(dx * dx + dz * dz);
     const directDist = Math.sqrt(dx * dx + dy * dy + dz * dz);
 

@@ -79,13 +79,15 @@
   <div class="spatial-nav-bar" id="spatial-nav-bar">
     <button class="btn-location live-gps" id="btn-live-gps">
       <span class="gps-pulse-dot"></span>
-      <span>MY LIVE GPS: NIT CALICUT</span>
+      <span>MY LIVE GPS: IT COMPLEX (NITC)</span>
     </button>
     <div class="nav-divider"></div>
     <div class="nav-sector-select">
       <span class="nav-select-label">SECTOR:</span>
       <select id="select-desired-sector" class="nav-dropdown">
-        <option value="nit_admin" selected>NIT Calicut: Administrative & Central Core (Live)</option>
+        <option value="nit_it_complex" selected>NIT Calicut: IT Laboratory Complex (Live GPS Origin)</option>
+        <option value="nit_admin">NIT Calicut: Administrative & Central Core (Rajpath)</option>
+        <option value="tathva_stalls">NIT Calicut: Tathva '26 Technical Expo & Pavilions</option>
         <option value="nit_academic">NIT Calicut: Academic Quadrangle (CSE, ECE, Mech, Civil)</option>
         <option value="nit_hostels">NIT Calicut: East Ridge & Mega Hostels (Safe Haven +48.5m MSL)</option>
         <option value="nit_ground">NIT Calicut: Main Ground & Sports Complex</option>
@@ -112,16 +114,20 @@
       <span class="val" style="color: var(--accent-cyan);">Sentinel-1 SAR & GLO-30 DEM (Hourly Sync)</span>
     </div>
     <div class="evac-metric-item">
+      <span class="lbl">ORIGIN CHECKPOINT</span>
+      <span class="val" style="color: var(--accent-cyan);">IT Laboratory Complex (Ground Level +14.5m)</span>
+    </div>
+    <div class="evac-metric-item">
       <span class="lbl">TERRAIN GRADIENT ANALYSIS</span>
-      <span class="val">2.1 deg (Lowland Hazard) -> 14.8 deg (Safe Ridge)</span>
+      <span class="val">2.1 deg (Lowland Hazard) -&gt; 14.8 deg (Safe Ridge)</span>
     </div>
     <div class="evac-metric-item">
       <span class="lbl">DESTINATION HAVEN</span>
-      <span class="val" style="color: var(--status-emerald);">NIT Calicut Ridge Shelter (+48.5m MSL)</span>
+      <span class="val" style="color: var(--status-emerald);">NIT Calicut Mega Hostels Haven (+48.5m MSL)</span>
     </div>
     <div class="evac-metric-item">
-      <span class="lbl">DRY TRANSIT CORRIDOR</span>
-      <span class="val">3.2 km via Kattangal Link</span>
+      <span class="lbl">TERRAIN ESCAPE CORRIDOR</span>
+      <span class="val">Paved Road Network (125.5m Safe Path)</span>
     </div>
     <div class="evac-metric-item">
       <span class="lbl">SUBMERGED ROAD CLOSURES</span>
@@ -276,7 +282,9 @@
           <span>AUTONOMOUS DRONE PATROL</span>
         </div>
         <div class="button-grid">
-          <button class="btn-chip active" data-cam-preset="nit_admin">Campus Core</button>
+          <button class="btn-chip active" data-cam-preset="nit_it_complex">IT Lab (Live)</button>
+          <button class="btn-chip" data-cam-preset="nit_admin">Campus Core</button>
+          <button class="btn-chip" data-cam-preset="tathva_stalls">Tathva '26 Expo</button>
           <button class="btn-chip" data-cam-preset="nit_academic">Departments</button>
           <button class="btn-chip" data-cam-preset="nit_hostels">Mega Hostels</button>
           <button class="btn-chip" data-cam-preset="nit_ground">Main Ground</button>
@@ -493,17 +501,17 @@
   <!-- Scripts -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-  <script src="js/incidents-data.js?v=2.6"></script>
-  <script src="js/twin-engine.js?v=2.6"></script>
-  <script src="js/simulation.js?v=2.6"></script>
-  <script src="js/hud-controller.js?v=2.6"></script>
+  <script src="js/incidents-data.js?v=2.7"></script>
+  <script src="js/twin-engine.js?v=2.7"></script>
+  <script src="js/simulation.js?v=2.7"></script>
+  <script src="js/hud-controller.js?v=2.7"></script>
 
   <!-- Application Bootstrap -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       // 1. Initialize 3D Engine
       window.twinEngine = new TwinEngine('viewport-container');
-      window.twinEngine.setCameraPreset('nit_admin');
+      window.twinEngine.setCameraPreset('nit_it_complex');
 
       // 2. Initialize Simulation Controller
       window.simController = new SimulationController();

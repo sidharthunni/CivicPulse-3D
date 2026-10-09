@@ -5,7 +5,7 @@
  * Strictly zero emojis
  */
 
-const CACHE_NAME = 'civicpulse-3d-cache-v5';
+const CACHE_NAME = 'civicpulse-3d-cache-v6';
 const OFFLINE_URLS = [
   './',
   './index.html',

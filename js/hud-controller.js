@@ -433,13 +433,13 @@ class HUDController {
     if (liveGpsBtn) {
       liveGpsBtn.addEventListener('click', () => {
         if (window.twinEngine) {
-          window.twinEngine.setCameraPreset('nit_admin');
+          window.twinEngine.setCameraPreset('nit_it_complex');
         }
         if (sectorSelect) {
-          sectorSelect.value = 'nit_admin';
+          sectorSelect.value = 'nit_it_complex';
         }
         document.querySelectorAll('[data-cam-preset]').forEach(b => {
-          b.classList.toggle('active', b.getAttribute('data-cam-preset') === 'nit_admin');
+          b.classList.toggle('active', b.getAttribute('data-cam-preset') === 'nit_it_complex');
         });
         if (window.simController) {
           window.simController.playTacticalBeep(880, 'sine', 0.1);
@@ -714,10 +714,13 @@ class HUDController {
       // 8. Key Landmark Nodes
       const nodes = [
         { name: 'ADMIN', x: centerX, y: 62, color: '#38bdf8' },
+        { name: 'IT LAB (GPS)', x: 95, y: 90, color: '#10b981' },
+        { name: 'TATHVA EXPO', x: 135, y: 112, color: '#f59e0b' },
         { name: 'CCC', x: 104, y: 88, color: '#38bdf8' },
         { name: 'LIBRARY', x: 168, y: 92, color: '#38bdf8' },
         { name: 'HOSTELS (+48m)', x: 195, y: 72, color: '#10b981' },
         { name: 'GATE', x: centerX, y: 128, color: '#10b981' },
+        { name: 'NLHC', x: 155, y: 55, color: '#38bdf8' },
         { name: 'STADIUM', x: 105, y: 45, color: '#38bdf8' }
       ];
 
@@ -732,7 +735,22 @@ class HUDController {
         ctx.fillText(n.name, n.x + 4, n.y + 2);
       });
 
-      // 9. User Live GPS Origin (Gandhi Circle)
+      // 8b. Real-Time 2D Autonomous Evacuation Escape Corridor
+      const evacActive = window.twinEngine && window.twinEngine.evacuationActive;
+      ctx.strokeStyle = evacActive ? '#10b981' : 'rgba(16, 185, 129, 0.4)';
+      ctx.lineWidth = evacActive ? 2.5 : 1.5;
+      if (!evacActive) ctx.setLineDash([3, 3]);
+      ctx.beginPath();
+      ctx.moveTo(95, 90);   // IT Lab Complex (Live GPS Origin)
+      ctx.lineTo(135, 95);  // Gandhi Circle Hub
+      ctx.lineTo(170, 95);  // East Link Avenue
+      ctx.lineTo(195, 72);  // Mega Hostels Safe Haven (+48.5m MSL)
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // 9. User Live GPS Origin (IT Laboratory Complex)
+      const gpsX = 95;
+      const gpsY = 90;
       const now = performance.now() * 0.003;
       const pulseRadius = 3 + (now % 1) * 9;
       const pulseOpacity = 1 - (now % 1);
@@ -740,17 +758,17 @@ class HUDController {
       ctx.strokeStyle = `rgba(16, 185, 129, ${pulseOpacity})`;
       ctx.lineWidth = 1.5;
       ctx.beginPath();
-      ctx.arc(centerX, centerY, pulseRadius, 0, Math.PI * 2);
+      ctx.arc(gpsX, gpsY, pulseRadius, 0, Math.PI * 2);
       ctx.stroke();
 
       ctx.fillStyle = '#10b981';
       ctx.beginPath();
-      ctx.arc(centerX, centerY, 3.5, 0, Math.PI * 2);
+      ctx.arc(gpsX, gpsY, 3.5, 0, Math.PI * 2);
       ctx.fill();
 
       ctx.fillStyle = '#34d399';
       ctx.font = 'bold 7.5px monospace';
-      ctx.fillText('YOU (GPS)', centerX - 38, centerY - 5);
+      ctx.fillText('YOU (IT LAB)', gpsX - 35, gpsY - 6);
 
       // 10. Rotating Sentinel-1 C-SAR Radar Sweep Beam
       const sweepLen = 110;
