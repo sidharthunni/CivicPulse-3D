@@ -43,7 +43,8 @@ class TwinEngine {
     // 1. Scene & Atmosphere
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color(0x060913); // Deep cyber-navy
-    this.scene.fog = new THREE.FogExp2(0x060913, 0.0035);
+    // Linear distant fog starting at 600m ensures zero dimming when orbiting or zooming
+    this.scene.fog = new THREE.Fog(0x060913, 600, 1800);
 
     // 2. Camera
     this.camera = new THREE.PerspectiveCamera(50, width / height, 1, 2000);
@@ -56,7 +57,7 @@ class TwinEngine {
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1.1;
+    this.renderer.toneMappingExposure = 1.25;
     this.container.appendChild(this.renderer.domElement);
 
     // 4. Orbit Controls
@@ -98,32 +99,37 @@ class TwinEngine {
   }
 
   setupLighting() {
-    // Ambient soft fill
-    const ambient = new THREE.AmbientLight(0x1a263f, 1.4);
+    // 1. Crisp balanced ambient fill (illuminates all shadow sides cleanly)
+    const ambient = new THREE.AmbientLight(0xffffff, 1.25);
     this.scene.add(ambient);
 
-    // Main directional sunlight / moonlight
-    const dirLight = new THREE.DirectionalLight(0x7dd3fc, 1.8);
-    dirLight.position.set(120, 200, 100);
+    // 2. Sky-Ground Hemisphere Light
+    const hemiLight = new THREE.HemisphereLight(0xe0f2fe, 0x1e293b, 0.95);
+    this.scene.add(hemiLight);
+
+    // 3. Primary Key Sunlight
+    const dirLight = new THREE.DirectionalLight(0xffffff, 1.6);
+    dirLight.position.set(160, 240, 130);
     dirLight.castShadow = true;
     dirLight.shadow.mapSize.width = 2048;
     dirLight.shadow.mapSize.height = 2048;
     dirLight.shadow.camera.near = 10;
-    dirLight.shadow.camera.far = 600;
-    dirLight.shadow.camera.left = -200;
-    dirLight.shadow.camera.right = 200;
-    dirLight.shadow.camera.top = 200;
-    dirLight.shadow.camera.bottom = -200;
+    dirLight.shadow.camera.far = 800;
+    dirLight.shadow.camera.left = -320;
+    dirLight.shadow.camera.right = 320;
+    dirLight.shadow.camera.top = 320;
+    dirLight.shadow.camera.bottom = -320;
     this.scene.add(dirLight);
 
-    // Warm municipal highlight light
-    const municipalLight = new THREE.DirectionalLight(0x38bdf8, 0.9);
-    municipalLight.position.set(-150, 100, -100);
-    this.scene.add(municipalLight);
+    // 4. Fill Directional Light (illuminates opposing faces so rotation never dims)
+    const fillLight = new THREE.DirectionalLight(0x93c5fd, 1.1);
+    fillLight.position.set(-160, 160, -140);
+    this.scene.add(fillLight);
 
-    // Under-glow for cyber spatial look
-    const hemiLight = new THREE.HemisphereLight(0x0f172a, 0x0284c7, 0.6);
-    this.scene.add(hemiLight);
+    // 5. Frontal Accent / Rim Light
+    const accentLight = new THREE.DirectionalLight(0x38bdf8, 0.7);
+    accentLight.position.set(0, 150, 200);
+    this.scene.add(accentLight);
   }
 
   getTerrainHeight(x, z) {
@@ -175,22 +181,23 @@ class TwinEngine {
 
   buildWaterway() {
     // Dynamic Topographical Floodwater Mesh conforming to river valley & low-lying basins
-    const segments = 80;
-    this.waterGeo = new THREE.PlaneGeometry(480, 480, segments, segments);
+    const size = 520;
+    const segments = 100;
+    this.waterGeo = new THREE.PlaneGeometry(size, size, segments, segments);
     this.waterGeo.rotateX(-Math.PI / 2);
 
     const waterMat = new THREE.MeshStandardMaterial({
       color: 0x0284c7,
-      roughness: 0.18,
-      metalness: 0.82,
+      roughness: 0.15,
+      metalness: 0.75,
       transparent: true,
-      opacity: 0.82
+      opacity: 0.85
     });
 
     this.waterMesh = new THREE.Mesh(this.waterGeo, waterMat);
     this.scene.add(this.waterMesh);
 
-    this.baseWaterLevel = -0.5;
+    this.baseWaterLevel = -1.2;
     this.currentWaterRise = 0.0;
     this.updateWaterGeometry(0);
   }
@@ -198,21 +205,15 @@ class TwinEngine {
   updateWaterGeometry(time = 0) {
     if (!this.waterMesh || !this.waterGeo) return;
     const pos = this.waterGeo.attributes.position;
-    const waterSurfaceY = this.baseWaterLevel + this.currentWaterRise * 1.15;
+    // Physical flood elevation: starts within natural river gorge (-1.2m), overflows with monsoon inundation
+    const waterSurfaceY = this.baseWaterLevel + this.currentWaterRise * 0.95;
 
     for (let i = 0; i < pos.count; i++) {
       const x = pos.getX(i);
       const z = pos.getZ(i);
-      const terrainY = this.getTerrainHeight(x, z);
-
-      if (terrainY < waterSurfaceY) {
-        // Submerged zone: dynamic fluid wave displacement
-        const wave = Math.sin(x * 0.08 + time * 2.2) * 0.16 + Math.cos(z * 0.08 + time * 1.6) * 0.12;
-        pos.setY(i, waterSurfaceY + wave);
-      } else {
-        // Elevated dry terrain: drop vertex beneath ground to prevent clipping
-        pos.setY(i, terrainY - 0.35);
-      }
+      // Fluid wave oscillation
+      const wave = Math.sin(x * 0.06 + time * 1.8) * 0.12 + Math.cos(z * 0.06 + time * 1.4) * 0.09;
+      pos.setY(i, waterSurfaceY + wave);
     }
     pos.needsUpdate = true;
     this.waterGeo.computeVertexNormals();
@@ -268,12 +269,12 @@ class TwinEngine {
   buildProceduralCity() {
     const boxGeo = new THREE.BoxGeometry(1, 1, 1);
 
-    // Base building materials with cyber windows
+    // Base building materials with clean architectural palettes
     const buildingPalette = [
-      new THREE.MeshStandardMaterial({ color: 0x172554, roughness: 0.4, metalness: 0.7 }),
-      new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.5, metalness: 0.6 }),
-      new THREE.MeshStandardMaterial({ color: 0x1e1b4b, roughness: 0.3, metalness: 0.8 }),
-      new THREE.MeshStandardMaterial({ color: 0x022c22, roughness: 0.4, metalness: 0.6 })
+      new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.5, metalness: 0.4 }),
+      new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.6, metalness: 0.3 }),
+      new THREE.MeshStandardMaterial({ color: 0x273549, roughness: 0.4, metalness: 0.5 }),
+      new THREE.MeshStandardMaterial({ color: 0x1e3a5f, roughness: 0.5, metalness: 0.4 })
     ];
 
     // Seeded procedural buildings in urban grids (excluding NIT Calicut campus quadrant)
@@ -290,7 +291,7 @@ class TwinEngine {
 
         // Keep roads and NIT Calicut campus quadrant clear
         if (Math.abs(x) < 14 || Math.abs(z + 80) < 12) continue;
-        if (x >= 45 && x <= 170 && z >= -135 && z <= -35) continue;
+        if (x >= 35 && x <= 200 && z >= -170 && z <= -30) continue;
 
         const w = 6 + Math.random() * 8;
         const d = 6 + Math.random() * 8;
@@ -473,6 +474,26 @@ class TwinEngine {
     flagMesh.position.set(circleX + 1.8, circleY + 13, circleZ);
     this.campusGroup.add(flagMesh);
 
+    // 3b. Open Administrative Front Lawn & Ceremonial Approach (No Obstructions!)
+    const lawnX = 105;
+    const lawnZ = -74;
+    const lawnY = this.getTerrainHeight(lawnX, lawnZ);
+
+    [-18, 18].forEach(xOffset => {
+      const lawnGeo = new THREE.PlaneGeometry(16, 18);
+      lawnGeo.rotateX(-Math.PI / 2);
+      const lawnMesh = new THREE.Mesh(lawnGeo, lawnMat);
+      lawnMesh.position.set(lawnX + xOffset, lawnY + 0.18, lawnZ);
+      lawnMesh.receiveShadow = true;
+      this.campusGroup.add(lawnMesh);
+
+      const borderGeo = new THREE.BoxGeometry(16.2, 0.25, 0.35);
+      const borderMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0 });
+      const borderMesh = new THREE.Mesh(borderGeo, borderMat);
+      borderMesh.position.set(lawnX + xOffset, lawnY + 0.25, lawnZ + 9);
+      this.campusGroup.add(borderMesh);
+    });
+
     // 4. Main Administrative Block (Administrative Core)
     const adminX = 105;
     const adminZ = -88;
@@ -541,28 +562,32 @@ class TwinEngine {
 
     this.createCampusTag("CENTRAL COMPUTER CENTRE (CCC)", cccX, cccY + 21, cccZ, "#38bdf8", null, 4.0);
 
-    // 6. Central Library (Rotunda & Flanking Wings)
-    const libX = 95;
-    const libZ = -48;
+    // 6. Central Library (Academic East Wing - Authentic NIT Calicut Location)
+    const libX = 142;
+    const libZ = -58;
     const libY = this.getTerrainHeight(libX, libZ);
 
-    const rotunda = new THREE.Mesh(new THREE.CylinderGeometry(12, 12, 16, 32), adminMat);
-    rotunda.position.set(libX, libY + 8, libZ);
-    rotunda.castShadow = true;
-    this.campusGroup.add(rotunda);
+    const libBody = new THREE.Mesh(new THREE.BoxGeometry(38, 14, 26), academicMat);
+    libBody.position.set(libX, libY + 7, libZ);
+    libBody.castShadow = true;
+    libBody.receiveShadow = true;
+    this.campusGroup.add(libBody);
 
-    const dome = new THREE.Mesh(new THREE.SphereGeometry(10, 24, 12, 0, Math.PI * 2, 0, Math.PI / 2), glassCyanMat);
-    dome.position.set(libX, libY + 16, libZ);
-    this.campusGroup.add(dome);
-
-    [-18, 18].forEach(xOffset => {
-      const wing = new THREE.Mesh(new THREE.BoxGeometry(20, 13, 16), academicMat);
-      wing.position.set(libX + xOffset, libY + 6.5, libZ);
-      wing.castShadow = true;
-      this.campusGroup.add(wing);
+    [-2.5, 2.5].forEach(yOff => {
+      const libWin = new THREE.Mesh(new THREE.BoxGeometry(34, 2.2, 0.4), glassCyanMat);
+      libWin.position.set(libX, libY + 7 + yOff, libZ + 13.2);
+      this.campusGroup.add(libWin);
     });
 
-    this.createCampusTag("CENTRAL LIBRARY", libX, libY + 21.5, libZ, "#38bdf8", null, 4.0);
+    const libPorch = new THREE.Mesh(new THREE.BoxGeometry(14, 11, 8), adminMat);
+    libPorch.position.set(libX - 10, libY + 5.5, libZ + 14);
+    this.campusGroup.add(libPorch);
+
+    const libRoof = new THREE.Mesh(new THREE.BoxGeometry(36, 1.2, 24), trimMat);
+    libRoof.position.set(libX, libY + 14.6, libZ);
+    this.campusGroup.add(libRoof);
+
+    this.createCampusTag("CENTRAL LIBRARY (ACADEMIC EAST)", libX, libY + 20, libZ, "#38bdf8", null, 4.0);
 
     // 7. North Academic Quadrangle (CSED, ECED, MED Workshops, Civil, Arch)
     const cseX = 140;
@@ -985,7 +1010,7 @@ class TwinEngine {
     switch (presetName) {
       case "nit_admin":
       case "nit_calicut":
-        this.smoothCameraTransition(new THREE.Vector3(145, 48, -48), new THREE.Vector3(105, 14, -85));
+        this.smoothCameraTransition(new THREE.Vector3(135, 42, -35), new THREE.Vector3(105, 14, -80));
         break;
       case "nit_academic":
         this.smoothCameraTransition(new THREE.Vector3(180, 50, -80), new THREE.Vector3(138, 16, -115));
