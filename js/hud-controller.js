@@ -320,6 +320,34 @@ class HUDController {
     const openBtn = document.getElementById('btn-open-modal');
     const closeBtn = document.getElementById('btn-close-modal');
     const gprModal = document.getElementById('gpr-modal');
+    const closeGprBtn = document.getElementById('btn-close-gpr');
+
+    const openGpr = () => {
+      if (gprModal) {
+        gprModal.classList.add('active');
+        if (window.simController) window.simController.playTacticalBeep(920, 'square', 0.12);
+        const inc = this.selectedIncident || window.CivicStore.getAll()[0];
+        if (inc && window.twinEngine) {
+          window.twinEngine.triggerSubsurfaceScan(inc.id);
+        }
+        const targetText = document.getElementById('gpr-target-display');
+        if (targetText && inc) {
+          targetText.textContent = `GROUND PENETRATING RADAR TRANSIT SLICE // TARGET: ${inc.id} (${inc.title.substring(0, 28).toUpperCase()})`;
+        }
+      }
+    };
+
+    const headerGprBtn = document.getElementById('btn-header-gpr');
+    if (headerGprBtn) headerGprBtn.addEventListener('click', openGpr);
+
+    const leftGprBtn = document.getElementById('btn-left-gpr');
+    if (leftGprBtn) leftGprBtn.addEventListener('click', openGpr);
+
+    if (closeGprBtn && gprModal) {
+      closeGprBtn.addEventListener('click', () => {
+        gprModal.classList.remove('active');
+      });
+    }
 
     if (openBtn && modal) {
       openBtn.addEventListener('click', () => {

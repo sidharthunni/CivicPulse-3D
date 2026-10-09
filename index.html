@@ -66,6 +66,7 @@
 
     <!-- Header Tactical Actions -->
     <div class="header-actions">
+      <button class="btn-tactical primary" id="btn-header-gpr" style="border-color: #38bdf8; box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);">GPR SOIL SCANNER</button>
       <button class="btn-tactical" id="btn-toggle-civ-mode">VIEW: MUNICIPAL COMMAND</button>
       <a href="citizen.html" target="_blank" class="btn-tactical primary">CITIZEN PORTAL</a>
       <button class="btn-tactical" id="btn-open-modal">ARCHITECTURE & B2G</button>
@@ -121,11 +122,15 @@
         </div>
       </div>
 
-      <!-- Section 2: Hazard Stress Overlays -->
+      <!-- Section 2: Subsurface GPR Soil Scanner & Hazard Stress -->
       <div class="hud-section">
         <div class="section-label">
-          <span>HAZARD STRESS TESTING</span>
+          <span>GPR SOIL & PIPE SCANNER</span>
+          <span class="panel-badge" style="background: rgba(239, 68, 68, 0.2); color: #f87171; border-color: #ef4444;">SUBSURFACE RADAR</span>
         </div>
+        <button class="btn-tactical primary" id="btn-left-gpr" style="width: 100%; margin-bottom: 10px; padding: 10px; justify-content: center; font-weight: 700; font-size: 11px; letter-spacing: 1px; border-color: #38bdf8; box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);">
+          LAUNCH GPR SOIL & PIPE SCANNER
+        </button>
         <div class="button-grid">
           <button class="btn-chip" id="toggle-slope-hazard">Kunnamangalam Slope Risk</button>
           <button class="btn-chip" id="toggle-drain-choke">Mavoor Culvert Choke</button>
@@ -279,7 +284,7 @@
       </div>
       <div class="modal-card-body">
         <div class="gpr-radar-header">
-          <span>GROUND PENETRATING RADAR TRANSIT SLICE // TARGET: CP-2026-102 (SOUTH BEACH CORRIDOR)</span>
+          <span id="gpr-target-display">GROUND PENETRATING RADAR TRANSIT SLICE // TARGET: CP-2026-101 (MAVOOR ROAD CORRIDOR)</span>
           <span style="color: var(--status-critical); font-weight: 700;">CAVITY DETECTED</span>
         </div>
 
