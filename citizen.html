@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CivicPulse 3D - Citizen Reporting Portal & Public Ledger</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="css/citizen.css">
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header class="portal-header">
+    <div class="portal-brand">
+      <span class="brand-badge-pill">BROTOTYPE GOVTECH</span>
+      <span class="brand-title-text">CIVICPULSE CITIZEN</span>
+    </div>
+    <a href="index.html" class="btn-nav-twin">LAUNCH 3D COMMAND VIEW</a>
+  </header>
+
+  <main class="portal-container">
+    <!-- Welcome Card -->
+    <section class="hero-card">
+      <h1 class="hero-title">Report Municipal Hazard or Infrastructure Breach</h1>
+      <p class="hero-desc">
+        Your submission is geocoded, triaged via autonomous computer vision, assigned to responsible public works agencies, and stamped onto an immutable public audit ledger.
+      </p>
+    </section>
+
+    <!-- Reporting Form -->
+    <section class="reporting-card">
+      <form id="citizen-report-form">
+        <!-- Title Input -->
+        <div class="form-group">
+          <label class="form-label" for="input-title">Incident Title / Brief Summary</label>
+          <input type="text" id="input-title" class="form-input" placeholder="e.g. Severely Clogged Culvert Flooding Street" required value="Subterranean Drainage Culvert Rupture">
+        </div>
+
+        <!-- Category Picker -->
+        <div class="form-group">
+          <label class="form-label">Hazard Category</label>
+          <div class="category-selector">
+            <div class="category-option selected" data-category="drainage">
+              <span class="category-option-name">Drainage & Flooding</span>
+              <span class="category-option-desc">Culvert breach, stormwater backflow</span>
+            </div>
+            <div class="category-option" data-category="road">
+              <span class="category-option-name">Roads & Potholes</span>
+              <span class="category-option-desc">Asphalt crater, base layer subsidence</span>
+            </div>
+            <div class="category-option" data-category="waste">
+              <span class="category-option-name">Waste Management</span>
+              <span class="category-option-desc">Illegal dumping, canal choking debris</span>
+            </div>
+            <div class="category-option" data-category="electrical">
+              <span class="category-option-name">Electrical Hazard</span>
+              <span class="category-option-desc">Sagging 11kV cable, sparking transformer</span>
+            </div>
+            <div class="category-option" data-category="slope">
+              <span class="category-option-name">Landslide & Slope</span>
+              <span class="category-option-desc">Hillside tension crack, mudslide risk</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Location Geocode -->
+        <div class="form-group">
+          <label class="form-label" for="input-location">Geographic Location</label>
+          <div class="location-row">
+            <input type="text" id="input-location" class="form-input" placeholder="e.g. Mavoor Road Commercial Sector" value="Mavoor Road Sector 4, Kozhikode (Ward 22)" required>
+            <button type="button" class="btn-gps" id="btn-get-gps">DETECT GPS</button>
+          </div>
+        </div>
+
+        <!-- Description with Voice-to-Text -->
+        <div class="form-group">
+          <label class="form-label" for="input-description">Detailed Description / Observations</label>
+          <div class="input-with-action">
+            <textarea id="input-description" class="form-textarea" placeholder="Describe the severity, depth, waterlogging, or hazards observed...">Primary drainage culvert cracked following continuous monsoon downpour. Water level rising rapidly across commercial corridor link.</textarea>
+            <button type="button" class="btn-voice" id="btn-voice-input">VOICE NOTE</button>
+          </div>
+        </div>
+
+        <!-- Photographic Evidence & AI Scanner -->
+        <div class="form-group">
+          <label class="form-label">Photographic Evidence</label>
+          <div class="photo-uploader" id="photo-dropzone">
+            <input type="file" id="file-upload" accept="image/*">
+            <div class="uploader-title">Click to capture or upload site photograph</div>
+            <div class="uploader-subtitle">Automatic AI visual defect classification will initiate</div>
+          </div>
+
+          <!-- AI Neural Triage Readout -->
+          <div class="ai-triage-result" id="ai-triage-box">
+            <div class="ai-triage-title">Autonomous AI Triage Assessment</div>
+            <div class="ai-triage-detail" id="ai-triage-detail">
+              Detecting pattern...
+            </div>
+          </div>
+        </div>
+
+        <!-- Citizen Name / Identity -->
+        <div class="form-group">
+          <label class="form-label" for="input-name">Citizen Full Name / Ward Resident ID</label>
+          <input type="text" id="input-name" class="form-input" placeholder="e.g. K. Radhakrishnan (Ward 22)" value="S. Unnithan (Citizen #5102)">
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn-submit" id="btn-submit-report">
+          LODGE INCIDENT TO SPATIAL LEDGER
+        </button>
+      </form>
+
+      <!-- Success Receipt Card -->
+      <div class="receipt-card" id="receipt-card">
+        <div class="receipt-header">
+          <span style="font-weight: 700; color: #fff;">INCIDENT STAMPED SUCCESSFULLY</span>
+          <span class="receipt-status" id="receipt-id">CP-2026-999</span>
+        </div>
+        <p style="font-size: 12px; color: var(--text-sub);">
+          This ticket has been autonomously triaged and dispatched to the multi-agency matrix. An immutable cryptographic hash has been generated for public verification:
+        </p>
+        <div class="receipt-hash-box" id="receipt-hash">
+          0x0000000000000000000000000000000000000000
+        </div>
+        <div class="receipt-actions">
+          <a href="index.html" class="btn-nav-twin" style="background: rgba(56, 189, 248, 0.15); text-align: center; flex: 1;">
+            VIEW INCIDENT BEACON IN 3D TWIN
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Public Transparency Ledger Feed -->
+    <section class="ledger-section">
+      <div class="ledger-title">Public Transparency Ledger (Recent Community Reports)</div>
+      <div class="ledger-list" id="public-ledger-list"></div>
+    </section>
+  </main>
+
+  <!-- Core State & Logic Scripts -->
+  <script src="js/incidents-data.js"></script>
+  <script src="js/citizen-portal.js"></script>
+</body>
+</html>

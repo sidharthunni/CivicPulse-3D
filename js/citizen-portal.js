@@ -1,0 +1,264 @@
+/**
+ * CivicPulse 3D - Citizen Reporting Portal Logic
+ * Implements 1-Click GPS detection, Web Speech voice input,
+ * AI damage classification simulation, and LocalStorage/Store synchronization.
+ * Strictly zero emojis
+ */
+
+document.addEventListener('DOMContentLoaded', () => {
+  let selectedCategory = 'drainage';
+  let detectedCoords = { lat: 11.2588, lng: 75.7804, x: 25, z: -20, y: 0.5 };
+  let uploadedPhotoUrl = 'https://images.unsplash.com/photo-1547683905-f686c993aae5?auto=format&fit=crop&w=800&q=80';
+  let aiClassifiedSeverity = 'high';
+  let isSpeechRecognizing = false;
+
+  // 1. Category Selection
+  const categoryCards = document.querySelectorAll('.category-option');
+  categoryCards.forEach(card => {
+    card.addEventListener('click', () => {
+      categoryCards.forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      selectedCategory = card.getAttribute('data-category');
+      runAITriageSimulation();
+    });
+  });
+
+  // 2. GPS Location Detection
+  const gpsBtn = document.getElementById('btn-get-gps');
+  const locationInput = document.getElementById('input-location');
+
+  if (gpsBtn && locationInput) {
+    gpsBtn.addEventListener('click', () => {
+      gpsBtn.textContent = 'DETECTING...';
+
+      if ('geolocation' in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            const lat = pos.coords.latitude;
+            const lng = pos.coords.longitude;
+            detectedCoords.lat = lat;
+            detectedCoords.lng = lng;
+            // Map lat/long delta relative to Calicut center (11.2588, 75.7804) to 3D world space
+            detectedCoords.x = ((lng - 75.7804) * 2000).toFixed(1);
+            detectedCoords.z = ((11.2588 - lat) * 2000).toFixed(1);
+            detectedCoords.y = 0.5;
+
+            locationInput.value = `Geotagged (Lat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)}) - Calicut Municipal Sector`;
+            gpsBtn.textContent = 'GPS LOCKED';
+          },
+          (err) => {
+            // Simulated accurate Calicut coordinates fallback
+            detectedCoords.lat = 11.2588 + (Math.random() - 0.5) * 0.04;
+            detectedCoords.lng = 75.7804 + (Math.random() - 0.5) * 0.04;
+            detectedCoords.x = Math.round((Math.random() - 0.5) * 120);
+            detectedCoords.z = Math.round((Math.random() - 0.5) * 120);
+            locationInput.value = 'Mavoor Road Sector 4, Kozhikode (Ward 22)';
+            gpsBtn.textContent = 'FALLBACK LOCKED';
+          },
+          { timeout: 5000 }
+        );
+      } else {
+        locationInput.value = 'Mavoor Road Sector 4, Kozhikode (Ward 22)';
+        gpsBtn.textContent = 'MANUAL SET';
+      }
+    });
+  }
+
+  // 3. Voice-to-Text Input via Web Speech API
+  const voiceBtn = document.getElementById('btn-voice-input');
+  const descTextarea = document.getElementById('input-description');
+
+  if (voiceBtn && descTextarea) {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      const recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.lang = 'en-IN';
+
+      voiceBtn.addEventListener('click', () => {
+        if (!isSpeechRecognizing) {
+          try {
+            recognition.start();
+            isSpeechRecognizing = true;
+            voiceBtn.textContent = 'LISTENING...';
+            voiceBtn.classList.add('listening');
+          } catch (e) {}
+        } else {
+          recognition.stop();
+          isSpeechRecognizing = false;
+          voiceBtn.textContent = 'VOICE NOTE';
+          voiceBtn.classList.remove('listening');
+        }
+      });
+
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        descTextarea.value = (descTextarea.value ? descTextarea.value + ' ' : '') + transcript;
+        voiceBtn.textContent = 'VOICE NOTE';
+        voiceBtn.classList.remove('listening');
+        isSpeechRecognizing = false;
+      };
+
+      recognition.onerror = () => {
+        voiceBtn.textContent = 'VOICE NOTE';
+        voiceBtn.classList.remove('listening');
+        isSpeechRecognizing = false;
+      };
+
+      recognition.onend = () => {
+        voiceBtn.textContent = 'VOICE NOTE';
+        voiceBtn.classList.remove('listening');
+        isSpeechRecognizing = false;
+      };
+    } else {
+      voiceBtn.addEventListener('click', () => {
+        alert('Web Speech API is not supported in this browser. Please type your description.');
+      });
+    }
+  }
+
+  // 4. Photo Upload & AI Triage Scanner Simulation
+  const fileInput = document.getElementById('file-upload');
+  const photoUploader = document.getElementById('photo-dropzone');
+  const aiTriageBox = document.getElementById('ai-triage-box');
+  const aiTriageDetail = document.getElementById('ai-triage-detail');
+
+  if (photoUploader && fileInput) {
+    photoUploader.addEventListener('click', () => fileInput.click());
+
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files && e.target.files[0]) {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        reader.onload = (uploadEvent) => {
+          uploadedPhotoUrl = uploadEvent.target.result;
+          document.querySelector('.uploader-title').textContent = file.name;
+          document.querySelector('.uploader-subtitle').textContent = 'Image verified. Running AI triage scanner...';
+          runAITriageSimulation();
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  }
+
+  function runAITriageSimulation() {
+    if (!aiTriageBox) return;
+    aiTriageBox.style.display = 'block';
+
+    const agencyMap = {
+      drainage: { agency: 'Kerala Water Authority (KWA)', severity: 'critical', confidence: '96.2%', issue: 'Stormwater Culvert Blockage' },
+      road: { agency: 'Public Works Department (PWD)', severity: 'high', confidence: '94.8%', issue: 'Asphalt Subsidence & Pothole' },
+      waste: { agency: 'Suchitwa Mission & KSPCB', severity: 'high', confidence: '91.5%', issue: 'Canal Non-Biodegradable Waste Dump' },
+      electrical: { agency: 'Kerala State Electricity Board (KSEB)', severity: 'critical', confidence: '98.1%', issue: 'High-Tension Sagging Hazard' },
+      slope: { agency: 'District Disaster Management Authority (DDMA)', severity: 'critical', confidence: '95.4%', issue: 'Hillside Geotechnical Crack' }
+    };
+
+    const target = agencyMap[selectedCategory] || agencyMap.drainage;
+    aiClassifiedSeverity = target.severity;
+
+    aiTriageDetail.innerHTML = `
+      Detected Pattern: <strong>${target.issue}</strong><br>
+      Computer Vision Confidence: <strong>${target.confidence}</strong><br>
+      Autonomous Priority: <strong style="color: ${target.severity === 'critical' ? '#ef4444' : '#f59e0b'}">${target.severity.toUpperCase()}</strong><br>
+      Routing Agency: <strong>${target.agency}</strong>
+    `;
+  }
+
+  // Initial AI triage preview
+  runAITriageSimulation();
+
+  // 5. Form Submission
+  const reportForm = document.getElementById('citizen-report-form');
+  const receiptCard = document.getElementById('receipt-card');
+  const receiptId = document.getElementById('receipt-id');
+  const receiptHash = document.getElementById('receipt-hash');
+
+  if (reportForm) {
+    reportForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const title = document.getElementById('input-title').value.trim();
+      const address = document.getElementById('input-location').value.trim() || 'Kozhikode Municipal Sector';
+      const description = document.getElementById('input-description').value.trim();
+      const citizenName = document.getElementById('input-name').value.trim() || 'Verified Citizen';
+
+      const agencyMap = {
+        drainage: { agency: 'Kerala Water Authority (KWA) & Kozhikode Municipal Corp', label: 'Drainage & Flooding' },
+        road: { agency: 'Public Works Department (PWD - Roads Wing)', label: 'Road & Potholes' },
+        waste: { agency: 'Suchitwa Mission & Kerala State Pollution Control Board', label: 'Waste Management' },
+        electrical: { agency: 'Kerala State Electricity Board (KSEB)', label: 'Electrical Hazard' },
+        slope: { agency: 'District Disaster Management Authority (DDMA) & PWD', label: 'Landslide & Slope Risk' }
+      };
+
+      const agencyData = agencyMap[selectedCategory] || agencyMap.drainage;
+
+      const newIncident = {
+        title: title,
+        category: selectedCategory,
+        categoryLabel: agencyData.label,
+        severity: aiClassifiedSeverity,
+        status: 'reported',
+        address: address,
+        lat: Number(detectedCoords.lat),
+        lng: Number(detectedCoords.lng),
+        x: Number(detectedCoords.x),
+        z: Number(detectedCoords.z),
+        y: Number(detectedCoords.y),
+        reportedBy: citizenName,
+        reportedAt: new Date().toLocaleTimeString('en-US', { hour12: false }) + ' IST (Today)',
+        agency: agencyData.agency,
+        slaHours: aiClassifiedSeverity === 'critical' ? 6 : 24,
+        elapsedHours: 0.1,
+        budgetEstimate: 'Under Evaluation',
+        interAgencyConflict: 'Pending initial site survey inspection.',
+        description: description,
+        photoUrl: uploadedPhotoUrl
+      };
+
+      // Store into window.CivicStore
+      const created = window.CivicStore.add(newIncident);
+
+      // Display Receipt Card
+      if (receiptCard) {
+        receiptCard.style.display = 'block';
+        if (receiptId) receiptId.textContent = created.id;
+        if (receiptHash) receiptHash.textContent = created.auditHash;
+        receiptCard.scrollIntoView({ behavior: 'smooth' });
+      }
+
+      // Hide or disable submit button
+      const submitBtn = document.getElementById('btn-submit-report');
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'REPORT LODGED ON PUBLIC LEDGER';
+        submitBtn.style.opacity = '0.6';
+      }
+
+      // Refresh recent public ledger list
+      renderLedgerList();
+    });
+  }
+
+  // 6. Render Transparency Ledger List
+  function renderLedgerList() {
+    const listContainer = document.getElementById('public-ledger-list');
+    if (!listContainer) return;
+
+    const incidents = window.CivicStore.getAll();
+    listContainer.innerHTML = incidents.slice(0, 5).map(inc => `
+      <div class="ledger-card">
+        <div class="ledger-meta">
+          <span class="ledger-id">${inc.id} // ${inc.categoryLabel}</span>
+          <span class="ledger-issue">${inc.title}</span>
+          <span style="font-size: 10px; color: var(--text-dim); margin-top: 2px;">
+            ${inc.address} &bull; ${inc.reportedAt}
+          </span>
+        </div>
+        <span class="ledger-status ${inc.status}">${inc.status.toUpperCase()}</span>
+      </div>
+    `).join('');
+  }
+
+  renderLedgerList();
+});

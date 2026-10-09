@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CivicPulse 3D - Urban Spatial Digital Twin & Autonomous Governance Platform</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="css/command-hud.css">
+</head>
+<body>
+
+  <!-- Fullscreen 3D WebGL Canvas Container -->
+  <div id="viewport-container"></div>
+
+  <!-- Spatial Coordinate Overlay -->
+  <div class="spatial-overlay" id="coords-display">
+    CALICUT GRID // WGS84: 11.2588 N, 75.7804 E // ELEV: +12.4m // DATUM: MSL-COCHIN
+  </div>
+
+  <!-- Top Executive Command Header -->
+  <header class="command-header">
+    <div class="brand-section">
+      <span class="brand-badge">BROTOTYPE GOVTECH</span>
+      <div class="brand-title">
+        CIVICPULSE 3D
+        <span class="pulse-tag">// AUTONOMOUS URBAN TWIN</span>
+      </div>
+    </div>
+
+    <!-- Live Telemetry Ticker -->
+    <div class="telemetry-ticker">
+      <div class="telemetry-item">
+        <span class="telemetry-label">Active Hazards:</span>
+        <span class="telemetry-value cyan" id="telemetry-total">6</span>
+      </div>
+      <div class="telemetry-item">
+        <span class="telemetry-label">Critical:</span>
+        <span class="telemetry-value critical" id="telemetry-critical">3</span>
+      </div>
+      <div class="telemetry-item">
+        <span class="telemetry-label">In Progress:</span>
+        <span class="telemetry-value amber" id="telemetry-progress">2</span>
+      </div>
+      <div class="telemetry-item">
+        <span class="telemetry-label">Resolved:</span>
+        <span class="telemetry-value emerald" id="telemetry-resolved">1</span>
+      </div>
+      <div class="telemetry-item">
+        <span class="telemetry-label">Monsoon Level:</span>
+        <span class="telemetry-value emerald" id="telemetry-flood-status">NORMAL (0.0m)</span>
+      </div>
+      <div class="telemetry-item">
+        <span class="telemetry-label">Telemetry Sync:</span>
+        <span class="telemetry-value" id="telemetry-clock">--:--:-- IST</span>
+      </div>
+    </div>
+
+    <!-- Header Tactical Actions -->
+    <div class="header-actions">
+      <a href="citizen.html" target="_blank" class="btn-tactical primary">CITIZEN PORTAL</a>
+      <button class="btn-tactical" id="btn-open-modal">ARCHITECTURE & B2G</button>
+      <button class="btn-tactical" id="btn-toggle-sound">AUDIO: ON</button>
+      <button class="btn-tactical" id="btn-toggle-fs">FULLSCREEN</button>
+    </div>
+  </header>
+
+  <!-- Left Tactical HUD - Simulation & Drone Patrol -->
+  <aside class="hud-panel" id="hud-left">
+    <div class="panel-header">
+      <span class="panel-title">SIMULATION & DRONE PATROL</span>
+      <span class="panel-badge">REAL-TIME</span>
+    </div>
+    
+    <div class="panel-body">
+      <!-- Section 1: Monsoon Inundation Simulation -->
+      <div class="hud-section">
+        <div class="section-label">
+          <span>MONSOON FLOOD SIMULATOR</span>
+          <span class="slider-val" id="flood-val-display">0.0 m</span>
+        </div>
+        
+        <div class="range-group">
+          <input type="range" id="flood-slider" class="tactical-slider" min="0" max="8" step="0.1" value="0">
+          <div class="slider-readout">
+            <span>0.0m (Dry)</span>
+            <span>+4.0m (Severe)</span>
+            <span>+8.0m (Max)</span>
+          </div>
+        </div>
+
+        <div class="button-grid">
+          <button class="btn-chip active" data-flood-preset="0.0">Dry Weather (0m)</button>
+          <button class="btn-chip" data-flood-preset="1.5">Monsoon Surge (+1.5m)</button>
+          <button class="btn-chip" data-flood-preset="3.2">Flash Flood (+3.2m)</button>
+          <button class="btn-chip" data-flood-preset="5.5">100-Yr Disaster (+5.5m)</button>
+        </div>
+
+        <div class="impact-card">
+          <div class="impact-metric">
+            <span class="metric-label">Submerged Arterials</span>
+            <span class="metric-value" id="impact-submerged-km">0.0 km</span>
+          </div>
+          <div class="impact-metric">
+            <span class="metric-label">Units in Inundation Path</span>
+            <span class="metric-value" id="impact-affected-pop">0 units</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 2: Hazard Stress Overlays -->
+      <div class="hud-section">
+        <div class="section-label">
+          <span>HAZARD STRESS TESTING</span>
+        </div>
+        <div class="button-grid">
+          <button class="btn-chip" id="toggle-slope-hazard">Kunnamangalam Slope Risk</button>
+          <button class="btn-chip" id="toggle-drain-choke">Mavoor Culvert Choke</button>
+        </div>
+      </div>
+
+      <!-- Section 3: Drone Camera Presets -->
+      <div class="hud-section">
+        <div class="section-label">
+          <span>AUTONOMOUS DRONE PATROL</span>
+        </div>
+        <div class="button-grid">
+          <button class="btn-chip active" data-cam-preset="overview">City Overview</button>
+          <button class="btn-chip" data-cam-preset="coastal">Coastal Corridor</button>
+          <button class="btn-chip" data-cam-preset="mavoor">Mavoor Road Culvert</button>
+          <button class="btn-chip" data-cam-preset="kunnamangalam">Kunnamangalam Ridge (NIT)</button>
+          <button class="btn-chip" data-cam-preset="pedestrian">Pedestrian Walk</button>
+        </div>
+      </div>
+
+      <!-- Section 4: Hazard Category Filter -->
+      <div class="hud-section">
+        <div class="section-label">
+          <span>FILTER HAZARDS</span>
+        </div>
+        <div class="filter-tags">
+          <button class="filter-tag active" data-filter-category="all">ALL (6)</button>
+          <button class="filter-tag" data-filter-category="drainage">DRAINAGE (2)</button>
+          <button class="filter-tag" data-filter-category="road">ROADS (1)</button>
+          <button class="filter-tag" data-filter-category="waste">WASTE (1)</button>
+          <button class="filter-tag" data-filter-category="electrical">ELECTRICAL (1)</button>
+          <button class="filter-tag" data-filter-category="slope">LANDSLIDE (1)</button>
+        </div>
+      </div>
+
+      <!-- Section 5: Inter-Agency Status Matrix -->
+      <div class="hud-section">
+        <div class="section-label">
+          <span>INTER-AGENCY ROUTING MATRIX</span>
+        </div>
+        <div class="agency-matrix">
+          <div class="agency-row">
+            <span class="agency-name">PWD (Roads Wing)</span>
+            <span class="agency-status-indicator">
+              <span class="status-dot active"></span> 1 ACTIVE DISPATCH
+            </span>
+          </div>
+          <div class="agency-row">
+            <span class="agency-name">KWA (Water Authority)</span>
+            <span class="agency-status-indicator">
+              <span class="status-dot active"></span> 1 DRAIN REPAIR
+            </span>
+          </div>
+          <div class="agency-row">
+            <span class="agency-name">KSEB (Power Board)</span>
+            <span class="agency-status-indicator">
+              <span class="status-dot"></span> 0 PENDING (1 CLOSED)
+            </span>
+          </div>
+          <div class="agency-row">
+            <span class="agency-name">DDMA (Disaster Authority)</span>
+            <span class="agency-status-indicator">
+              <span class="status-dot active"></span> 1 GEOTECH ALERT
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Right Tactical HUD - Incident Inspector Card -->
+  <aside class="hud-panel" id="hud-right">
+    <div class="panel-header">
+      <span class="panel-title">TACTICAL INCIDENT INSPECTOR</span>
+      <span class="panel-badge">AUDIT VERIFIED</span>
+    </div>
+
+    <div class="panel-body" id="inspector-content">
+      <div class="inspector-empty">
+        <p>Select any 3D beacon or incident chip to inspect live civic data, agency dispatch routing, and cryptographic audit hash.</p>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Bottom Drawer - Incident Quick Carousel -->
+  <footer id="hud-bottom">
+    <span class="bottom-label">TACTICAL FEED:</span>
+    <div id="incident-carousel"></div>
+    <div class="bottom-quick-link">
+      <a href="citizen.html" target="_blank" class="btn-tactical primary" style="padding: 5px 12px; font-size: 10px;">
+        REPORT CIVIC ISSUE
+      </a>
+    </div>
+  </footer>
+
+  <!-- Modal: Architecture & Brototype Business Value -->
+  <div class="modal-overlay" id="info-modal">
+    <div class="modal-card">
+      <div class="modal-card-header">
+        <span class="modal-card-title">CIVICPULSE 3D // PLATFORM ARCHITECTURE & B2G COMMERCIALIZATION</span>
+        <button class="modal-close-btn" id="btn-close-modal">X</button>
+      </div>
+      <div class="modal-card-body">
+        <h3>1. Executive Problem Statement</h3>
+        <p>
+          Current Indian civic portals (such as CPGRAMS and Swachhata) are flat 2D complaint registries. They suffer from three fundamental failures:
+        </p>
+        <ul>
+          <li><strong>Inter-Departmental Blame Games:</strong> PWD blames KWA for pipe ruptures; KWA blames PWD for paving over culverts. Citizens wait months with zero accountability.</li>
+          <li><strong>Zero Geospatial Context:</strong> Flat forms cannot model topographical elevations, monsoon drainage flow, or landslide tension cracks.</li>
+          <li><strong>Opaque Resolution Verification:</strong> Contractors mark tickets resolved without immutable audit proof or before-and-after spatial verification.</li>
+        </ul>
+
+        <h3>2. CivicPulse 3D Innovation</h3>
+        <p>
+          CivicPulse 3D introduces India's first WebGL-powered 3D Urban Spatial Digital Twin and Autonomous Multi-Agency Governance Command Platform:
+        </p>
+        <ul>
+          <li><strong>Procedural 3D Spatial Digital Twin:</strong> Built with Three.js WebGL, rendering elevations, river depressions, road networks, and high-density buildings directly in the browser at 60 FPS without heavy GIS workstation software.</li>
+          <li><strong>Monsoon Inundation & Slope Stress Simulator:</strong> Real-time hydraulic plane simulation modeling flood rise from 0m to 8m, calculating submerged arterial kilometers and vulnerable buildings instantly.</li>
+          <li><strong>Autonomous Multi-Agency Routing Matrix:</strong> Holds joint jurisdictions accountable (e.g. holding PWD resurfacing on hold while KWA completes subterranean drainage repairs).</li>
+          <li><strong>Immutable Cryptographic Audit Ledger:</strong> Every incident ingestion, AI triage score, work order, and contractor resolution is hashed to eliminate ticket manipulation.</li>
+        </ul>
+
+        <h3>3. Commercial Monetization Strategy for Brototype</h3>
+        <p>
+          How Brototype directly monetizes and scales CivicPulse 3D:
+        </p>
+        <ul>
+          <li><strong>B2G Municipal SaaS Licensing:</strong> Annual software licensing model to Municipal Corporations (Kozhikode, Kochi, Thiruvananthapuram) under the Smart Cities Mission and Kerala State Disaster Management Authority (KSDMA).</li>
+          <li><strong>Deep-Tech Talent Pipeline Showcase:</strong> Positions Brototype as the premier developer ecosystem in Kerala capable of producing high-performance 3D spatial computing engineers, opening enterprise consulting contracts with infrastructure conglomerates (L&T, Adani Ports, Kochi Metro).</li>
+          <li><strong>GovTech Data Analytics API:</strong> Selling anonymized urban infrastructure vulnerability data and monsoon inundation risk indices to insurance providers and real estate developers.</li>
+        </ul>
+
+        <h3>4. Tech Stack & Open Source Attribution</h3>
+        <ul>
+          <li><strong>Core Engine:</strong> Three.js (r128), WebGL, HTML5 Canvas, Web Audio API.</li>
+          <li><strong>State & Geospatial Store:</strong> LocalStorage persistent reactive store, WGS84 coordinates.</li>
+          <li><strong>Deployment:</strong> GitHub Pages static web distribution + optional Node.js Express API.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="js/incidents-data.js"></script>
+  <script src="js/twin-engine.js"></script>
+  <script src="js/simulation.js"></script>
+  <script src="js/hud-controller.js"></script>
+
+  <!-- Application Bootstrap -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // 1. Initialize 3D Engine
+      window.twinEngine = new TwinEngine('viewport-container');
+
+      // 2. Initialize Simulation Controller
+      window.simController = new SimulationController();
+
+      // 3. Initialize HUD Controller
+      window.hudController = new HUDController();
+
+      // Track mouse coordinates for HUD readout
+      const coordsDisplay = document.getElementById('coords-display');
+      window.addEventListener('mousemove', (e) => {
+        if (!coordsDisplay) return;
+        const normX = ((e.clientX / window.innerWidth) - 0.5) * 2;
+        const normY = ((e.clientY / window.innerHeight) - 0.5) * 2;
+        const lat = (11.2588 + normY * -0.015).toFixed(4);
+        const lng = (75.7804 + normX * 0.025).toFixed(4);
+        const elev = Math.max(0, (12.4 + normX * 8.2)).toFixed(1);
+        coordsDisplay.textContent = `CALICUT GRID // WGS84: ${lat} N, ${lng} E // ELEV: +${elev}m // DATUM: MSL-COCHIN`;
+      });
+    });
+  </script>
+</body>
+</html>
