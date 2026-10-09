@@ -93,6 +93,11 @@ class HUDController {
 
         document.querySelectorAll('[data-cam-preset]').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
+
+        const sectorSelect = document.getElementById('select-desired-sector');
+        if (sectorSelect) {
+          sectorSelect.value = preset;
+        }
       });
     });
   }
@@ -426,11 +431,14 @@ class HUDController {
     if (liveGpsBtn) {
       liveGpsBtn.addEventListener('click', () => {
         if (window.twinEngine) {
-          window.twinEngine.setCameraPreset('nit_calicut');
+          window.twinEngine.setCameraPreset('nit_admin');
         }
         if (sectorSelect) {
-          sectorSelect.value = 'nit_calicut';
+          sectorSelect.value = 'nit_admin';
         }
+        document.querySelectorAll('[data-cam-preset]').forEach(b => {
+          b.classList.toggle('active', b.getAttribute('data-cam-preset') === 'nit_admin');
+        });
         if (window.simController) {
           window.simController.playTacticalBeep(880, 'sine', 0.1);
         }
@@ -443,6 +451,9 @@ class HUDController {
         if (window.twinEngine) {
           window.twinEngine.setCameraPreset(sector);
         }
+        document.querySelectorAll('[data-cam-preset]').forEach(b => {
+          b.classList.toggle('active', b.getAttribute('data-cam-preset') === sector);
+        });
         if (window.simController) {
           window.simController.playTacticalBeep(720, 'sine', 0.08);
         }
