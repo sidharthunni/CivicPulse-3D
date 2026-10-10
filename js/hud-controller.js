@@ -591,19 +591,86 @@ class HUDController {
     const evacBtn = document.getElementById('btn-toggle-evacuation');
     const evacCard = document.getElementById('evacuation-overlay-card');
 
+    const gpsModal = document.getElementById('gps-telemetry-modal');
+    const closeGpsModalBtn = document.getElementById('btn-close-gps-modal');
+    const zoomGpsBtn = document.getElementById('btn-zoom-live-gps');
+    const routeGpsBtn = document.getElementById('btn-route-from-gps');
+
+    if (closeGpsModalBtn && gpsModal) {
+      closeGpsModalBtn.addEventListener('click', () => {
+        gpsModal.classList.remove('active');
+      });
+    }
+    if (gpsModal) {
+      gpsModal.addEventListener('click', (e) => {
+        if (e.target === gpsModal) gpsModal.classList.remove('active');
+      });
+    }
+
+    if (zoomGpsBtn) {
+      zoomGpsBtn.addEventListener('click', () => {
+        if (window.twinEngine) window.twinEngine.setCameraPreset('nit_it_complex');
+        if (gpsModal) gpsModal.classList.remove('active');
+        if (window.simController) window.simController.playTacticalBeep(1020, 'sine', 0.08);
+      });
+    }
+
+    if (routeGpsBtn) {
+      routeGpsBtn.addEventListener('click', () => {
+        if (gpsModal) gpsModal.classList.remove('active');
+        if (window.twinEngine && !window.twinEngine.evacuationActive) {
+          window.twinEngine.toggleEvacuationRoute();
+        }
+        const evacOverlay = document.getElementById('evacuation-overlay-card');
+        if (evacOverlay) evacOverlay.classList.add('active');
+        if (window.simController) window.simController.playTacticalBeep(1200, 'square', 0.15);
+      });
+    }
+
     if (liveGpsBtn) {
       liveGpsBtn.addEventListener('click', () => {
-        if (window.twinEngine) {
-          window.twinEngine.setCameraPreset('nit_it_complex');
-        }
-        if (sectorSelect) {
-          sectorSelect.value = 'nit_it_complex';
-        }
-        document.querySelectorAll('[data-cam-preset]').forEach(b => {
-          b.classList.toggle('active', b.getAttribute('data-cam-preset') === 'nit_it_complex');
-        });
-        if (window.simController) {
-          window.simController.playTacticalBeep(880, 'sine', 0.1);
+        if (window.simController) window.simController.playTacticalBeep(960, 'sine', 0.12);
+
+        const openGpsPopup = (lat, lon, acc, isRealSensor = true) => {
+          const coordsEl = document.getElementById('gps-live-coords');
+          const accEl = document.getElementById('gps-live-accuracy-tag');
+          const statusEl = document.getElementById('gps-live-status-label');
+          const sectorEl = document.getElementById('gps-live-sector');
+
+          if (coordsEl) coordsEl.textContent = `${lat.toFixed(4)}° N, ${lon.toFixed(4)}° E`;
+          if (accEl) accEl.textContent = `±${acc}m ACCURACY`;
+          if (statusEl) statusEl.textContent = isRealSensor ? 'ACTIVE GNSS SATELLITE FIX LOCKED' : 'VENUE GPS ANCHOR // NIT CALICUT';
+          if (sectorEl) sectorEl.textContent = 'IT Laboratory Complex (NITC)';
+
+          if (gpsModal) gpsModal.classList.add('active');
+
+          if (window.twinEngine) {
+            window.twinEngine.setCameraPreset('nit_it_complex');
+          }
+          if (sectorSelect) {
+            sectorSelect.value = 'nit_it_complex';
+          }
+          document.querySelectorAll('[data-cam-preset]').forEach(b => {
+            b.classList.toggle('active', b.getAttribute('data-cam-preset') === 'nit_it_complex');
+          });
+        };
+
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            (pos) => {
+              const lat = pos.coords.latitude;
+              const lon = pos.coords.longitude;
+              const acc = Math.round(pos.coords.accuracy || 4);
+              openGpsPopup(lat, lon, acc, true);
+            },
+            (err) => {
+              console.warn('Geolocation fallback to NITC anchor:', err.message);
+              openGpsPopup(11.3216, 75.9336, 4, false);
+            },
+            { enableHighAccuracy: true, timeout: 6000 }
+          );
+        } else {
+          openGpsPopup(11.3216, 75.9336, 4, false);
         }
       });
     }

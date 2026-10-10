@@ -533,13 +533,64 @@
     </div>
   </div>
 
+  <!-- Modal: Live GPS Telemetry & Civilian Locator -->
+  <div class="modal-overlay" id="gps-telemetry-modal">
+    <div class="modal-card" style="width: 540px; max-width: 95vw;">
+      <div class="modal-card-header">
+        <span class="modal-card-title">LIVE CIVILIAN GPS BEACON // GNSS POSITION LOCKED</span>
+        <button class="modal-close-btn" id="btn-close-gps-modal">X</button>
+      </div>
+      <div class="modal-card-body">
+        <div style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: var(--radius-sm); padding: 10px 14px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span class="pulse-dot-green"></span>
+            <span style="font-family: var(--font-mono); font-size: 11px; font-weight: 800; color: #34d399;" id="gps-live-status-label">ACTIVE GNSS SATELLITE FIX LOCKED</span>
+          </div>
+          <span style="font-size: 9.5px; font-family: var(--font-mono); color: var(--accent-cyan); font-weight: 700;" id="gps-live-accuracy-tag">±3.8m ACCURACY</span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;">
+          <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: var(--radius-sm); padding: 8px 10px;">
+            <div style="font-size: 8.5px; font-family: var(--font-mono); color: var(--text-muted); text-transform: uppercase;">Latitude / Longitude</div>
+            <div style="font-size: 12px; font-family: var(--font-mono); font-weight: 800; color: #fff; margin-top: 2px;" id="gps-live-coords">11.3216° N, 75.9336° E</div>
+          </div>
+          <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: var(--radius-sm); padding: 8px 10px;">
+            <div style="font-size: 8.5px; font-family: var(--font-mono); color: var(--text-muted); text-transform: uppercase;">Elevation AMSL</div>
+            <div style="font-size: 12px; font-family: var(--font-mono); font-weight: 800; color: var(--accent-cyan); margin-top: 2px;" id="gps-live-elevation">+48.5m (Safe Subgrade)</div>
+          </div>
+          <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: var(--radius-sm); padding: 8px 10px;">
+            <div style="font-size: 8.5px; font-family: var(--font-mono); color: var(--text-muted); text-transform: uppercase;">Campus Sector Grid</div>
+            <div style="font-size: 11px; font-family: var(--font-mono); font-weight: 700; color: #fde047; margin-top: 2px;" id="gps-live-sector">IT Laboratory Complex (NITC)</div>
+          </div>
+          <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: var(--radius-sm); padding: 8px 10px;">
+            <div style="font-size: 8.5px; font-family: var(--font-mono); color: var(--text-muted); text-transform: uppercase;">Nearest Safe Haven</div>
+            <div style="font-size: 11px; font-family: var(--font-mono); font-weight: 700; color: #34d399; margin-top: 2px;">Mega Hostels (280m Distance)</div>
+          </div>
+        </div>
+
+        <div style="background: rgba(2, 6, 23, 0.8); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: var(--radius-sm); padding: 10px 12px; margin-bottom: 12px; font-size: 10px; color: #cbd5e1; line-height: 1.45;">
+          <strong>CIVILIAN SAFETY TELEMETRY:</strong> Your live position is currently mapped onto the 3D twin of NIT Calicut. In case of flood or infrastructure failure along Mavoor Road, follow the highlighted green autonomous evacuation corridor eastward toward the Mega Hostels high ground (+48.5m MSL).
+        </div>
+
+        <div style="display: flex; gap: 8px;">
+          <button class="btn-tactical primary" id="btn-zoom-live-gps" style="flex: 1; justify-content: center; font-weight: 700; padding: 8px;">
+            CENTER CAMERA ON MY LOCATION
+          </button>
+          <button class="btn-tactical" id="btn-route-from-gps" style="flex: 1; justify-content: center; font-weight: 700; padding: 8px; border-color: #34d399; color: #34d399;">
+            START EVACUATION ROUTE
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Scripts -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-  <script src="js/incidents-data.js?v=2.9"></script>
-  <script src="js/twin-engine.js?v=2.9"></script>
-  <script src="js/simulation.js?v=2.9"></script>
-  <script src="js/hud-controller.js?v=2.9"></script>
+  <script src="js/incidents-data.js?v=3.0"></script>
+  <script src="js/twin-engine.js?v=3.0"></script>
+  <script src="js/simulation.js?v=3.0"></script>
+  <script src="js/hud-controller.js?v=3.0"></script>
 
   <!-- Application Bootstrap -->
   <script>
