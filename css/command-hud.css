@@ -1595,3 +1595,222 @@ body.civilian-mode .civilian-banner {
 }
 
 
+
+/* Subsurface Multi-Pipe Destruction Matrix & Radar Diagnostics */
+.gpr-radar-progress-wrap {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  margin: 8px 0;
+}
+
+.gpr-progress-track {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+  overflow: hidden;
+  position: relative;
+}
+
+.gpr-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #38bdf8, #0284c7, #22c55e);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.gpr-inventory-section {
+  margin-top: 12px;
+}
+
+.gpr-inventory-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.inventory-title {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: #f8fafc;
+  letter-spacing: 0.5px;
+}
+
+.inventory-count-pill {
+  font-size: 9px;
+  font-family: var(--font-mono);
+  background: rgba(56, 189, 248, 0.15);
+  color: var(--accent-cyan);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  padding: 2px 7px;
+  border-radius: 12px;
+  font-weight: 700;
+}
+
+.gpr-inventory-filters {
+  display: flex;
+  gap: 5px;
+}
+
+.gpr-filter-btn {
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.gpr-filter-btn:hover {
+  background: rgba(30, 41, 59, 0.9);
+  color: #fff;
+}
+
+.gpr-filter-btn.active {
+  background: rgba(56, 189, 248, 0.2);
+  border-color: var(--accent-cyan);
+  color: var(--accent-cyan);
+  font-weight: 700;
+}
+
+.gpr-filter-btn.destructed.active {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: var(--status-critical);
+  color: var(--status-critical);
+}
+
+.gpr-filter-btn.compromised.active {
+  background: rgba(245, 158, 11, 0.2);
+  border-color: var(--status-warning);
+  color: var(--status-warning);
+}
+
+.gpr-filter-btn.intact.active {
+  background: rgba(16, 185, 129, 0.2);
+  border-color: #10b981;
+  color: #10b981;
+}
+
+.gpr-pipes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 230px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.gpr-pipe-card {
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.gpr-pipe-card:hover {
+  transform: translateX(2px);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.gpr-pipe-card.destructed {
+  border-left: 3px solid var(--status-critical);
+  background: linear-gradient(90deg, rgba(239, 68, 68, 0.12), rgba(15, 23, 42, 0.75));
+}
+
+.gpr-pipe-card.compromised {
+  border-left: 3px solid var(--status-warning);
+  background: linear-gradient(90deg, rgba(245, 158, 11, 0.1), rgba(15, 23, 42, 0.75));
+}
+
+.gpr-pipe-card.intact {
+  border-left: 3px solid #10b981;
+  background: linear-gradient(90deg, rgba(16, 185, 129, 0.08), rgba(15, 23, 42, 0.75));
+}
+
+.gpr-pipe-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.gpr-pipe-id {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 800;
+  color: #fff;
+}
+
+.badge-critical {
+  font-size: 8.5px;
+  font-family: var(--font-mono);
+  font-weight: 800;
+  color: var(--status-critical);
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.badge-warning {
+  font-size: 8.5px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--status-warning);
+  background: rgba(245, 158, 11, 0.2);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.badge-nominal {
+  font-size: 8.5px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.2);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.gpr-pipe-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 9.5px;
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
+}
+
+.gpr-pipe-meta span strong {
+  color: var(--accent-cyan);
+}
+
+.gpr-pipe-desc {
+  font-size: 9.5px;
+  color: #cbd5e1;
+  line-height: 1.35;
+  margin-top: 2px;
+}
+
+.gpr-pipe-action {
+  font-size: 9px;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+  border-top: 1px dashed rgba(255, 255, 255, 0.08);
+  padding-top: 4px;
+  margin-top: 2px;
+}

@@ -17,6 +17,7 @@ class HUDController {
     this.initInspector();
     this.initCarousel();
     this.initModals();
+    this.initGprScanner();
     this.initQuickActions();
     this.initSpatialNavigation();
     this.initLandmarkInspector();
@@ -342,6 +343,7 @@ class HUDController {
         if (targetText && inc) {
           targetText.textContent = `GROUND PENETRATING RADAR TRANSIT SLICE // TARGET: ${inc.id} (${inc.title.substring(0, 28).toUpperCase()})`;
         }
+        this.runGprScanSequence();
       }
     };
 
@@ -381,6 +383,165 @@ class HUDController {
         if (e.target === gprModal) gprModal.classList.remove('active');
       });
     }
+  }
+
+
+  // 7.1 GPR Subsurface Multi-Pipe Scanner & Damage Matrix
+  initGprScanner() {
+    this.gprConduits = [
+      {
+        id: "KWA-TRUNK-WTR-350",
+        agency: "Kerala Water Authority (KWA)",
+        type: "Potable Water Trunk Main",
+        diameter: "350mm Ductile Iron (Class K9)",
+        depth: "-1.40m below asphalt",
+        offset: "Centerline Corridor (0.0m)",
+        permittivity: "εr = 64.2 (High Saturation)",
+        condition: "destructed",
+        conditionLabel: "DESTRUCTED // RUPTURED",
+        damageDesc: "Longitudinal fracture breach with 1.8 m³ pressurized soil washout cavity. Active high-velocity water scour eroding sub-base.",
+        action: "PWD Repaving Embargo Active · KWA Emergency Excavation Crew Dispatched",
+        badgeClass: "badge-critical"
+      },
+      {
+        id: "KWA-DIST-WTR-150",
+        agency: "Kerala Water Authority (KWA)",
+        type: "Sub-Distribution Feeder Line",
+        diameter: "150mm High-Density Polyethylene (HDPE)",
+        depth: "-0.95m below asphalt",
+        offset: "East Shoulder (+3.8m)",
+        permittivity: "εr = 28.6 (Moisture Plume)",
+        condition: "destructed",
+        conditionLabel: "DESTRUCTED // LEAKING",
+        damageDesc: "Bell-and-spigot joint dislocation induced by subgrade subsidence. Continual seepage exacerbating road base settlement.",
+        action: "Joint Sleeve Replacement Required · Inter-Agency Ticket #KWA-2026-881",
+        badgeClass: "badge-critical"
+      },
+      {
+        id: "PWD-STORM-DRN-600",
+        agency: "Public Works Department (Drainage)",
+        type: "Stormwater Inundation Channel",
+        diameter: "600mm Reinforced Concrete Box (RCC)",
+        depth: "-1.15m below asphalt",
+        offset: "West Shoulder (-4.2m)",
+        permittivity: "εr = 14.1 (Void Shadow)",
+        condition: "compromised",
+        conditionLabel: "COMPROMISED // SCOURED",
+        damageDesc: "Subgrade foundation eroded beneath invert slab due to adjacent water main wash. Hairline shear crack at joint #4.",
+        action: "Foundation Grouting & Structural Shoring Prior to Paving",
+        badgeClass: "badge-warning"
+      },
+      {
+        id: "KSEB-GRID-PWR-100",
+        agency: "Kerala State Electricity Board (KSEB)",
+        type: "11kV Underground Power Feeder",
+        diameter: "100mm Armored Steel / XLPE Insulated",
+        depth: "-0.60m below asphalt",
+        offset: "East Verge (+6.2m)",
+        permittivity: "εr = 5.2 (Dry Aggregate)",
+        condition: "intact",
+        conditionLabel: "INTACT // SECURE",
+        damageDesc: "No dielectric anomaly detected. Compact gravel bedding intact, zero thermal or insulation breakdown.",
+        action: "Nominal · Clear for Municipal Operations",
+        badgeClass: "badge-nominal"
+      },
+      {
+        id: "BSNL-OFC-COMM-80",
+        agency: "Smart City Optical Fiber Network",
+        type: "Metropolitan Gigabit Telecom Backbone",
+        diameter: "80mm Micro-Duct Armored Conduit",
+        depth: "-0.45m below asphalt",
+        offset: "West Verge (-7.0m)",
+        permittivity: "εr = 4.8 (Normal Attenuation)",
+        condition: "intact",
+        conditionLabel: "INTACT // SECURE",
+        damageDesc: "Bedding compact and undisturbed. Zero shear deflection detected across 400 MHz radar transit slice.",
+        action: "Nominal · Clear for Municipal Operations",
+        badgeClass: "badge-nominal"
+      }
+    ];
+
+    this.currentGprFilter = 'all';
+
+    // Bind filter buttons
+    const filterBtns = document.querySelectorAll('.gpr-filter-btn');
+    filterBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        filterBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        this.currentGprFilter = btn.dataset.filter;
+        this.renderGprPipes(this.currentGprFilter);
+        if (window.simController) window.simController.playTacticalBeep(850, 'sine', 0.05);
+      });
+    });
+
+    // Bind rescan button
+    const rescanBtn = document.getElementById('btn-rescan-gpr');
+    if (rescanBtn) {
+      rescanBtn.addEventListener('click', () => {
+        this.runGprScanSequence();
+      });
+    }
+
+    this.renderGprPipes('all');
+  }
+
+  renderGprPipes(filter = 'all') {
+    const container = document.getElementById('gpr-pipes-list');
+    if (!container) return;
+
+    const filtered = this.gprConduits.filter(c => filter === 'all' || c.condition === filter);
+    
+    container.innerHTML = filtered.map(p => `
+      <div class="gpr-pipe-card ${p.condition}">
+        <div class="gpr-pipe-head">
+          <span class="gpr-pipe-id">${p.id} · <span style="font-weight:400; color:var(--text-secondary); font-size:10px;">${p.agency}</span></span>
+          <span class="${p.badgeClass}">${p.conditionLabel}</span>
+        </div>
+        <div class="gpr-pipe-meta">
+          <span>Type: <strong>${p.type}</strong> (${p.diameter})</span>
+          <span>Depth: <strong>${p.depth}</strong></span>
+          <span>Offset: <strong>${p.offset}</strong></span>
+          <span>Dielectric Echo: <strong style="color:${p.condition === 'destructed' ? 'var(--status-critical)' : (p.condition === 'compromised' ? 'var(--status-warning)' : '#10b981')}">${p.permittivity}</strong></span>
+        </div>
+        <div class="gpr-pipe-desc">${p.damageDesc}</div>
+        <div class="gpr-pipe-action"><strong>Enforcement Directive:</strong> ${p.action}</div>
+      </div>
+    `).join('');
+  }
+
+  runGprScanSequence() {
+    const bar = document.getElementById('gpr-progress-bar');
+    const statusText = document.getElementById('gpr-scan-status-text');
+    const pctText = document.getElementById('gpr-scan-pct');
+
+    if (!bar || !statusText || !pctText) return;
+
+    bar.style.width = '0%';
+    pctText.textContent = '0% SWEEPING';
+    statusText.textContent = 'TRANSMITTING 400 MHz HIGH-RES RADAR PULSES...';
+
+    if (window.simController) window.simController.playTacticalBeep(650, 'sawtooth', 0.15);
+
+    setTimeout(() => {
+      bar.style.width = '48%';
+      pctText.textContent = '48% ANALYZING';
+      statusText.textContent = 'MEASURING DIELECTRIC CONTRAST & HYPERBOLIC ECHOES...';
+      if (window.simController) window.simController.playTacticalBeep(850, 'sawtooth', 0.12);
+    }, 350);
+
+    setTimeout(() => {
+      bar.style.width = '100%';
+      pctText.textContent = '100% COMPLETE';
+      statusText.textContent = 'RADAR AUDIT COMPLETE // 2 DESTRUCTED CONDUITS DETECTED';
+      this.renderGprPipes(this.currentGprFilter);
+      if (window.simController) window.simController.playTacticalBeep(1150, 'square', 0.2);
+
+      const inc = this.selectedIncident || window.CivicStore.getAll()[0];
+      if (inc && window.twinEngine) {
+        window.twinEngine.triggerSubsurfaceScan(inc.id);
+      }
+    }, 750);
   }
 
   // 8. Quick Actions (Fullscreen, Sound Toggle, Civilian View)

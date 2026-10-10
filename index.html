@@ -489,11 +489,45 @@
             </div>
           </div>
 
+          <!-- Radar Sweep Progress Bar -->
+          <div class="gpr-radar-progress-wrap">
+            <div style="display:flex; justify-content:space-between; font-size:10px; font-family:var(--font-mono); color:var(--text-secondary); margin-bottom:4px;">
+              <span id="gpr-scan-status-text">400 MHz HIGH-RES RADAR SWEEP // DIAGNOSTIC COMPLETE</span>
+              <span id="gpr-scan-pct" style="color:var(--accent-cyan); font-weight:700;">100% AUDITED</span>
+            </div>
+            <div class="gpr-progress-track">
+              <div class="gpr-progress-fill" id="gpr-progress-bar" style="width: 100%;"></div>
+            </div>
+          </div>
+
+          <!-- Destructed Utility Pipelines Inventory & Audit Section -->
+          <div class="gpr-inventory-section">
+            <div class="gpr-inventory-header">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span class="inventory-title">SCANNED UTILITY PIPELINES AUDIT</span>
+                <span class="inventory-count-pill" id="gpr-total-count">5 CONDUITS DETECTED</span>
+              </div>
+              <div class="gpr-inventory-filters">
+                <button class="gpr-filter-btn active" data-filter="all">ALL (5)</button>
+                <button class="gpr-filter-btn destructed" data-filter="destructed">DESTRUCTED (2)</button>
+                <button class="gpr-filter-btn compromised" data-filter="compromised">COMPROMISED (1)</button>
+                <button class="gpr-filter-btn intact" data-filter="intact">INTACT (2)</button>
+              </div>
+            </div>
+
+            <!-- Dynamic Pipes Inventory List -->
+            <div class="gpr-pipes-list" id="gpr-pipes-list"></div>
+          </div>
+
           <div class="gpr-verdict-banner">
             <strong>MUNICIPAL INTER-AGENCY BINDING VERDICT:</strong>
-            Subsurface GPR scan proves the road crater is caused by a subterranean KWA pipeline rupture washing away the sub-base soil. 
-            <strong>Action:</strong> PWD road repaving is automatically LOCKED until KWA excavation team seals the water main breach. This prevents spending public funds on asphalt that would collapse again within 14 days.
+            Subsurface GPR scan proves the road crater is caused by subterranean pipeline destruction washing away the sub-base soil. 
+            <strong>Action:</strong> PWD road repaving is automatically <strong>LOCKED</strong> until KWA excavation team seals the ruptured 350mm main and 150mm feeder conduits. This prevents spending public funds on asphalt that would collapse again within 14 days.
           </div>
+
+          <button class="btn-tactical primary" id="btn-rescan-gpr" style="width:100%; margin-top:8px; padding:9px; justify-content:center; font-weight:700; letter-spacing:0.8px;">
+            RE-RUN 400 MHz GPR RADAR SCAN
+          </button>
         </div>
       </div>
     </div>
@@ -502,10 +536,10 @@
   <!-- Scripts -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-  <script src="js/incidents-data.js?v=2.8"></script>
-  <script src="js/twin-engine.js?v=2.8"></script>
-  <script src="js/simulation.js?v=2.8"></script>
-  <script src="js/hud-controller.js?v=2.8"></script>
+  <script src="js/incidents-data.js?v=2.9"></script>
+  <script src="js/twin-engine.js?v=2.9"></script>
+  <script src="js/simulation.js?v=2.9"></script>
+  <script src="js/hud-controller.js?v=2.9"></script>
 
   <!-- Application Bootstrap -->
   <script>

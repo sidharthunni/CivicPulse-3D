@@ -1821,36 +1821,189 @@ class TwinEngine {
     this.subsurfaceScanGroup = new THREE.Group();
     this.subsurfaceScanGroup.position.set(inc.x, inc.y, inc.z);
 
-    // Subsurface inspection wireframe grid
-    const boxGeo = new THREE.BoxGeometry(18, 14, 18);
+    // 1. Subsurface inspection cutaway wireframe volume
+    const boxGeo = new THREE.BoxGeometry(26, 15, 20);
     const wireframeMat = new THREE.MeshBasicMaterial({
       color: 0x38bdf8,
       wireframe: true,
       transparent: true,
-      opacity: 0.75
+      opacity: 0.65
     });
     const scanBox = new THREE.Mesh(boxGeo, wireframeMat);
-    scanBox.position.y = -7;
+    scanBox.position.y = -6.5;
     this.subsurfaceScanGroup.add(scanBox);
 
-    // Subterranean ruptured pipeline visual (KWA water main)
-    const pipeGeo = new THREE.CylinderGeometry(1.4, 1.4, 20, 16);
-    pipeGeo.rotateZ(Math.PI / 2);
-    const pipeMat = new THREE.MeshStandardMaterial({
+    // Geological soil strata slice plane
+    const subbaseGeo = new THREE.PlaneGeometry(25.8, 19.8);
+    subbaseGeo.rotateX(-Math.PI / 2);
+    const subbaseMat = new THREE.MeshStandardMaterial({
+      color: 0x78350f,
+      roughness: 0.9,
+      metalness: 0.1,
+      transparent: true,
+      opacity: 0.55
+    });
+    const subbasePlane = new THREE.Mesh(subbaseGeo, subbaseMat);
+    subbasePlane.position.y = -3.2;
+    this.subsurfaceScanGroup.add(subbasePlane);
+
+    // 2. PIPE 1: KWA 350mm Main Trunk (DESTRUCTED / CRITICAL RUPTURE)
+    const pipe1Geo = new THREE.CylinderGeometry(1.4, 1.4, 25.5, 20);
+    pipe1Geo.rotateZ(Math.PI / 2);
+    const pipe1Mat = new THREE.MeshStandardMaterial({
       color: 0xef4444,
-      emissive: 0xef4444,
-      emissiveIntensity: 0.9,
+      emissive: 0x991b1b,
+      emissiveIntensity: 0.85,
       roughness: 0.3
     });
-    const subPipe = new THREE.Mesh(pipeGeo, pipeMat);
-    subPipe.position.set(0, -6, 0);
-    this.subsurfaceScanGroup.add(subPipe);
+    const pipe1Mesh = new THREE.Mesh(pipe1Geo, pipe1Mat);
+    pipe1Mesh.position.set(0, -6.5, 0);
+    this.subsurfaceScanGroup.add(pipe1Mesh);
+
+    // Pipe 1 Flanges
+    for (let f = -2; f <= 2; f++) {
+      const flGeo = new THREE.CylinderGeometry(1.7, 1.7, 0.6, 16);
+      flGeo.rotateZ(Math.PI / 2);
+      const flMat = new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.9 });
+      const flMesh = new THREE.Mesh(flGeo, flMat);
+      flMesh.position.set(f * 5.5, -6.5, 0);
+      this.subsurfaceScanGroup.add(flMesh);
+    }
+
+    // High-Dielectric Rupture Leak Sphere & Cavity Void
+    const voidGeo = new THREE.SphereGeometry(2.5, 18, 18);
+    const voidMat = new THREE.MeshStandardMaterial({
+      color: 0xef4444,
+      emissive: 0xef4444,
+      emissiveIntensity: 0.8,
+      transparent: true,
+      opacity: 0.75,
+      roughness: 0.2
+    });
+    const voidMesh = new THREE.Mesh(voidGeo, voidMat);
+    voidMesh.position.set(1.5, -6.5, 0);
+    this.subsurfaceScanGroup.add(voidMesh);
+
+    // GPR Radar Wavefront Reflection Echoes (Concentric Rings)
+    const radarEchoes = [];
+    for (let r = 0; r < 3; r++) {
+      const rGeo = new THREE.RingGeometry(2.0, 2.6, 24);
+      rGeo.rotateX(-Math.PI / 2);
+      const rMat = new THREE.MeshBasicMaterial({
+        color: 0x38bdf8,
+        side: THREE.DoubleSide,
+        transparent: true,
+        opacity: 0.8
+      });
+      const rMesh = new THREE.Mesh(rGeo, rMat);
+      rMesh.position.set(1.5, -5.5 + r * 0.4, 0);
+      this.subsurfaceScanGroup.add(rMesh);
+      radarEchoes.push(rMesh);
+    }
+
+    // Escaping Water Spray Droplets
+    const waterSpray = [];
+    const dropGeo = new THREE.SphereGeometry(0.22, 6, 6);
+    const dropMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.9 });
+    for (let i = 0; i < 24; i++) {
+      const drop = new THREE.Mesh(dropGeo, dropMat);
+      drop.position.set(1.5 + (Math.random() - 0.5) * 2.0, -6.5, (Math.random() - 0.5) * 2.0);
+      drop.userData = {
+        vy: 0.15 + Math.random() * 0.25,
+        vx: (Math.random() - 0.5) * 0.1,
+        vz: (Math.random() - 0.5) * 0.1,
+        baseY: -6.5
+      };
+      this.subsurfaceScanGroup.add(drop);
+      waterSpray.push(drop);
+    }
+
+    // 3. PIPE 2: KWA 150mm Sub-Feeder Line (DESTRUCTED / LEAKING)
+    const pipe2Geo = new THREE.CylinderGeometry(0.85, 0.85, 25.5, 18);
+    pipe2Geo.rotateZ(Math.PI / 2);
+    const pipe2Mat = new THREE.MeshStandardMaterial({
+      color: 0xf59e0b,
+      emissive: 0xb45309,
+      emissiveIntensity: 0.65,
+      roughness: 0.35
+    });
+    const pipe2Mesh = new THREE.Mesh(pipe2Geo, pipe2Mat);
+    pipe2Mesh.position.set(0, -4.8, 4.2);
+    this.subsurfaceScanGroup.add(pipe2Mesh);
+
+    // Dislocated Joint Ring
+    const jointGeo = new THREE.CylinderGeometry(1.15, 1.15, 0.9, 16);
+    jointGeo.rotateZ(Math.PI / 2);
+    const jointMat = new THREE.MeshStandardMaterial({ color: 0xef4444, emissive: 0xef4444, emissiveIntensity: 0.9 });
+    const jointMesh = new THREE.Mesh(jointGeo, jointMat);
+    jointMesh.position.set(-3.0, -4.8, 4.2);
+    this.subsurfaceScanGroup.add(jointMesh);
+
+    // 4. PIPE 3: PWD 600mm Stormwater Drain (COMPROMISED / SCOURED)
+    const pipe3Geo = new THREE.CylinderGeometry(1.8, 1.8, 25.5, 20);
+    pipe3Geo.rotateZ(Math.PI / 2);
+    const pipe3Mat = new THREE.MeshStandardMaterial({
+      color: 0x64748b,
+      metalness: 0.2,
+      roughness: 0.85
+    });
+    const pipe3Mesh = new THREE.Mesh(pipe3Geo, pipe3Mat);
+    pipe3Mesh.position.set(0, -5.8, -4.5);
+    this.subsurfaceScanGroup.add(pipe3Mesh);
+
+    // Foundation scour wireframe indicator
+    const scourGeo = new THREE.BoxGeometry(8, 2, 4);
+    const scourMat = new THREE.MeshBasicMaterial({ color: 0xeab308, wireframe: true, transparent: true, opacity: 0.75 });
+    const scourMesh = new THREE.Mesh(scourGeo, scourMat);
+    scourMesh.position.set(0, -7.5, -4.5);
+    this.subsurfaceScanGroup.add(scourMesh);
+
+    // 5. PIPE 4: KSEB 100mm Power Cable (INTACT / SECURE)
+    const pipe4Geo = new THREE.CylinderGeometry(0.55, 0.55, 25.5, 16);
+    pipe4Geo.rotateZ(Math.PI / 2);
+    const pipe4Mat = new THREE.MeshStandardMaterial({
+      color: 0x10b981,
+      emissive: 0x059669,
+      emissiveIntensity: 0.45,
+      roughness: 0.3
+    });
+    const pipe4Mesh = new THREE.Mesh(pipe4Geo, pipe4Mat);
+    pipe4Mesh.position.set(0, -3.5, 6.8);
+    this.subsurfaceScanGroup.add(pipe4Mesh);
+
+    // 6. PIPE 5: BSNL 80mm OFC Telecom Duct (INTACT / SECURE)
+    const pipe5Geo = new THREE.CylinderGeometry(0.45, 0.45, 25.5, 16);
+    pipe5Geo.rotateZ(Math.PI / 2);
+    const pipe5Mat = new THREE.MeshStandardMaterial({
+      color: 0x06b6d4,
+      emissive: 0x0891b2,
+      emissiveIntensity: 0.45,
+      roughness: 0.3
+    });
+    const pipe5Mesh = new THREE.Mesh(pipe5Geo, pipe5Mat);
+    pipe5Mesh.position.set(0, -2.8, -7.5);
+    this.subsurfaceScanGroup.add(pipe5Mesh);
+
+    // 7. Tactical 3D Sprites Hovering on Conduits
+    this.createBeaconTextSprite(this.subsurfaceScanGroup, "[DESTRUCTED] KWA 350mm Main Trunk (-1.4m)", "#ef4444", 0, -3.8, 0);
+    this.createBeaconTextSprite(this.subsurfaceScanGroup, "[DESTRUCTED] KWA 150mm Feeder Line (-0.95m)", "#f59e0b", 0, -2.4, 4.2);
+    this.createBeaconTextSprite(this.subsurfaceScanGroup, "[COMPROMISED] PWD 600mm Storm Drain (-1.15m)", "#eab308", 0, -3.0, -4.5);
+    this.createBeaconTextSprite(this.subsurfaceScanGroup, "[INTACT] KSEB 100mm Power Cable (-0.60m)", "#10b981", 0, -1.6, 6.8);
+    this.createBeaconTextSprite(this.subsurfaceScanGroup, "[INTACT] BSNL 80mm OFC Telecom (-0.45m)", "#06b6d4", 0, -1.0, -7.5);
+
+    this.subsurfaceScanGroup.userData = {
+      voidMesh,
+      radarEchoes,
+      waterSpray,
+      pipe1Mesh,
+      pipe2Mesh
+    };
 
     this.scene.add(this.subsurfaceScanGroup);
 
-    // Transition camera to subsurface perspective
-    const targetCamPos = new THREE.Vector3(inc.x + 24, inc.y + 16, inc.z + 24);
-    const targetLookAt = new THREE.Vector3(inc.x, inc.y - 4, inc.z);
+    // Transition camera to clear subsurface perspective
+    const targetCamPos = new THREE.Vector3(inc.x + 28, inc.y + 18, inc.z + 28);
+    const targetLookAt = new THREE.Vector3(inc.x, inc.y - 5, inc.z);
     this.smoothCameraTransition(targetCamPos, targetLookAt, 900);
   }
 
@@ -1897,6 +2050,41 @@ class TwinEngine {
     // Dynamic hydrological wave motion
     if (this.waterMesh) {
       this.updateWaterGeometry(this.animTime);
+    }
+
+    // Dynamic Subsurface GPR Conduit Animation
+    if (this.subsurfaceScanGroup && this.subsurfaceScanGroup.userData) {
+      const u = this.subsurfaceScanGroup.userData;
+      if (u.voidMesh) {
+        const vScale = 1.0 + Math.sin(this.animTime * 6.0) * 0.14;
+        u.voidMesh.scale.set(vScale, vScale, vScale);
+      }
+      if (u.radarEchoes && u.radarEchoes.length > 0) {
+        u.radarEchoes.forEach((ring, idx) => {
+          const rT = (this.animTime * 1.6 + idx * 0.33) % 1.0;
+          const rScale = 0.8 + rT * 1.6;
+          ring.scale.set(rScale, rScale, rScale);
+          ring.material.opacity = Math.max(0, 0.85 * (1.0 - rT));
+        });
+      }
+      if (u.waterSpray && u.waterSpray.length > 0) {
+        u.waterSpray.forEach(drop => {
+          drop.position.y += drop.userData.vy;
+          drop.position.x += drop.userData.vx;
+          drop.position.z += drop.userData.vz;
+          if (drop.position.y > -3.2) {
+            drop.position.y = drop.userData.baseY;
+            drop.position.x = 1.5 + (Math.random() - 0.5) * 1.5;
+            drop.position.z = (Math.random() - 0.5) * 1.5;
+          }
+        });
+      }
+      if (u.pipe1Mesh) {
+        u.pipe1Mesh.material.emissiveIntensity = 0.65 + Math.sin(this.animTime * 5.0) * 0.35;
+      }
+      if (u.pipe2Mesh) {
+        u.pipe2Mesh.material.emissiveIntensity = 0.50 + Math.sin(this.animTime * 4.0) * 0.25;
+      }
     }
 
     this.controls.update();
